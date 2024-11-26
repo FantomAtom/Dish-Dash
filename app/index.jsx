@@ -38,7 +38,7 @@ const App = () => {
   // Once fonts are loaded, display the main content
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor={Defines.Colors.HeaderColor} />
+      <StatusBar barStyle="light-content" backgroundColor={Defines.Colors.StatusBarColor} />
         <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade',}}>
           {user ? ( 
             <>
