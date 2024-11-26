@@ -352,7 +352,7 @@ const ProfilePage = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Defines.Colors.PrimaryYellow,
+    backgroundColor: Defines.Colors.PrimaryWhite,
     padding: 20,
   },
   profileSection: {

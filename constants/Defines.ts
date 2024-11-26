@@ -1,6 +1,6 @@
 export const Colors = {
   //COLORS
-  PrimaryYellow: '#FFD700',
+  PrimaryWhite: '#ebebeb',
   Black:'#000',
   White:'#FFFFFF',
   Red:'#f54545',
@@ -12,8 +12,8 @@ export const Colors = {
 
   //ELEMENTS
   ButtonColor: '#2feb51',
-  HeaderColor:'#ab9000',
   StatusBarColor:"#242424",
+  TabBarInactive:'#5e5e5e',
 
   //DELIVERY STATUS
   ArrivingSoon:"#FFD700",

@@ -105,10 +105,10 @@ export default function CartPage({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Defines.Colors.PrimaryYellow,
+    backgroundColor: Defines.Colors.PrimaryWhite,
   },
   flatList: {
-    backgroundColor: Defines.Colors.PrimaryYellow,
+    backgroundColor: Defines.Colors.PrimaryWhite,
     padding: 20,
   },
   orderCard: {

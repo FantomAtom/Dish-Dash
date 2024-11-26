@@ -14,6 +14,7 @@ import LoginPage from '../components/Login';
 import SignInPage from './auth/sign-in';
 import SignUpPage from './auth/sign-up';
 import PlaceOrderPage from './tabs/PlaceOrder'
+import ProfilePage from './tabs/profile';
 import { Defines } from '../constants/Defines';
 
 const Stack = createNativeStackNavigator();
@@ -44,6 +45,7 @@ const App = () => {
             <>
               <Stack.Screen name="MainHome" component={TabNavigator} />
               <Stack.Screen name="PlaceOrder" component={PlaceOrderPage} />
+              <Stack.Screen name="Profile" component={ProfilePage} />
             </>
           ) : (
             <>

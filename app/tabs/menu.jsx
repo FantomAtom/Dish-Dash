@@ -121,10 +121,10 @@ export default function MenuPage({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Defines.Colors.PrimaryYellow,
+    backgroundColor: Defines.Colors.PrimaryWhite,
   },
   flatList: {
-    backgroundColor: Defines.Colors.PrimaryYellow,
+    backgroundColor: Defines.Colors.PrimaryWhite,
   },
   scrollViewContent: {
     padding: 20,
@@ -175,6 +175,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Defines.Colors.PrimaryYellow,
+    backgroundColor: Defines.Colors.PrimaryWhite,
   },
 });
