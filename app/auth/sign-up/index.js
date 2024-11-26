@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, ImageBackground } from 'react-native';
 import { Defines } from './../../../constants/Defines';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './../../../configs/FirebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from './../../../configs/FirebaseConfig';
 
-const SignUpPage = ({navigation}) => {
-
+const SignUpPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState(''); 
-  const [address, setAddress] = useState(''); 
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
   const [name, setName] = useState('');
@@ -43,10 +42,10 @@ const SignUpPage = ({navigation}) => {
         name: name,
         email: email,
         phoneNumber: phoneNumber,
-        address: address, 
+        address: address,
       });
       console.log('Signed up:', user);
-      navigation.navigate("MainHome")
+      navigation.navigate('MainHome');
     } catch (err) {
       setError(err.message);
       console.log(err.message);
@@ -54,8 +53,11 @@ const SignUpPage = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.textContainer}>
+    <ImageBackground
+      source={require('./../../../assets/graphics/BACKGROUND.jpg')} // Replace with your image path
+      style={styles.background}
+    >
+      <View style={styles.container}>
         <Text style={styles.title}>Sign Up</Text>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -63,28 +65,28 @@ const SignUpPage = ({navigation}) => {
         <TextInput
           style={styles.input}
           placeholder="Name"
-          placeholderTextColor={Defines.Colors.TextColorBlack}
+          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={name}
           onChangeText={setName}
         />
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor={Defines.Colors.TextColorBlack}
+          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={email}
           onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
           placeholder="Address"
-          placeholderTextColor={Defines.Colors.TextColorBlack}
+          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={address}
           onChangeText={setAddress}
         />
         <TextInput
           style={styles.input}
           placeholder="Phone Number"
-          placeholderTextColor={Defines.Colors.TextColorBlack}
+          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={phoneNumber}
           onChangeText={(text) => {
             // Only allow digits in phone number input
@@ -96,7 +98,7 @@ const SignUpPage = ({navigation}) => {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor={Defines.Colors.TextColorBlack}
+          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -104,7 +106,7 @@ const SignUpPage = ({navigation}) => {
         <TextInput
           style={styles.input}
           placeholder="Re-enter Password"
-          placeholderTextColor={Defines.Colors.TextColorBlack}
+          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           secureTextEntry
           value={rePassword}
           onChangeText={setRePassword}
@@ -114,76 +116,79 @@ const SignUpPage = ({navigation}) => {
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
 
-        <Text style={styles.switchText}>
-          Already have an account? 
-          <Text style={styles.link} onPress={() => navigation.navigate('SignIn')}> Sign In</Text>
+        <Text style={styles.footerText}>
+          Already have an account?{' '}
+          <Text style={styles.link} onPress={() => navigation.navigate('SignIn')}>
+            Sign In
+          </Text>
         </Text>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    alignItems: 'center',
+    resizeMode: 'cover',
     justifyContent: 'center',
-    backgroundColor: Defines.Colors.PrimaryYellow,
+    alignItems: 'center',
+    backgroundColor: Defines.Colors.Black,
   },
-  textContainer: {
-    backgroundColor: Defines.Colors.TextColorWhite,
-    padding: 30,
-    borderRadius: 50,
-    shadowColor: Defines.Colors.TextColorBlack,
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
-    width: '80%',
+  container: {
+    width: '85%',
+    padding: 20,
+    backgroundColor: Defines.Colors.White,
+    borderRadius: 20,
+    alignItems: 'center',
+    elevation: 10,
   },
   title: {
-    fontSize: 30,
+    fontSize: 28,
     fontFamily: Defines.Fonts.Bold,
     color: Defines.Colors.TextColorBlack,
-    textAlign: 'center',
     marginBottom: 20,
   },
   input: {
+    width: '100%',
     height: 50,
-    borderColor: Defines.Colors.TextColorBlack,
+    borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 15,
-    fontFamily: Defines.Fonts.Regular,
     fontSize: 16,
+    fontFamily: Defines.Fonts.Regular,
     color: Defines.Colors.TextColorBlack,
   },
   button: {
     backgroundColor: Defines.Colors.ButtonColor,
+    width: '100%',
     paddingVertical: 12,
-    borderRadius: 15,
+    borderRadius: 8,
     alignItems: 'center',
+    marginTop: 10,
   },
   buttonText: {
-    fontSize: 18,
-    fontFamily: Defines.Fonts.Bold,
     color: Defines.Colors.TextColorWhite,
-  },
-  switchText: {
-    textAlign: 'center',
-    marginTop: 15,
-    fontFamily: Defines.Fonts.Regular,
-    color: Defines.Colors.TextColorBlack,
-  },
-  link: {
-    color: Defines.Colors.ButtonColor,
+    fontSize: 18,
     fontFamily: Defines.Fonts.Bold,
   },
   errorText: {
-    color: 'red',
-    marginBottom: 15,
+    color: Defines.Colors.Red,
+    marginTop: 10,
     textAlign: 'center',
+  },
+  footerText: {
+    marginTop: 20,
+    fontSize: 14,
+    color: Defines.Colors.TextColorBlack,
+    fontFamily: Defines.Fonts.Regular,
+    textAlign: 'center',
+  },
+  link: {
+    color: Defines.Colors.ButtonColor,
+    fontFamily: Defines.Fonts.Regular,
   },
 });
 

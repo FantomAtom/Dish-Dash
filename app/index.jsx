@@ -39,7 +39,7 @@ const App = () => {
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor={Defines.Colors.StatusBarColor} />
-        <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade',}}>
+        <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_bottom',}}>
           {user ? ( 
             <>
               <Stack.Screen name="MainHome" component={TabNavigator} />

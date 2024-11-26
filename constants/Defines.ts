@@ -1,13 +1,21 @@
 export const Colors = {
+  //COLORS
   PrimaryYellow: '#FFD700',
+  Black:'#000',
+  White:'#FFFFFF',
+  Red:'#f54545',
   
+  //TEXT COLORS
   TextColorWhite: '#fff',
+  PlaceHolderTextColor: '#A9A9A9',
   TextColorBlack: '#000',
 
-  ButtonColor: '#00C853',
+  //ELEMENTS
+  ButtonColor: '#2feb51',
   HeaderColor:'#ab9000',
   StatusBarColor:"#242424",
 
+  //DELIVERY STATUS
   ArrivingSoon:"#FFD700",
   Delivered: "#71eb91",
   Cancelled: "#ff6e6e",
