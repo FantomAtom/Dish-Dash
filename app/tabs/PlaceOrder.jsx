@@ -90,7 +90,7 @@ export default function PlaceOrderPage({ route, navigation }) {
   return (
     
     <View style={styles.container}>
-    <ScrollView style={styles.scrollcontainer} showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false}>
       {/* Food Image */}
       <Image source={{ uri: item.image }} style={styles.foodImage} />
 
@@ -151,10 +151,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Defines.Colors.PrimaryWhite,
-    padding:40
-  },
-  scrollcontainer: {
-    padding:0
+    padding:20
   },
   foodImage: {
     width: 300,
@@ -237,6 +234,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'space-between',
     marginTop: 20,
+    elevation: 5,
   },
   placeOrderText: {
     fontSize: 20,
