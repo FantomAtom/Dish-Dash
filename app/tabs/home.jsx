@@ -1,19 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  ScrollView,
-  Image,
-  TextInput,
-  ActivityIndicator,
-} from 'react-native';
+import {View,Text,StyleSheet,TouchableOpacity,FlatList,ScrollView,Image,TextInput,ActivityIndicator,} from 'react-native';
+import Swiper from 'react-native-swiper'; // For swiping between offers
 import { useNavigation } from '@react-navigation/native';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from './../../configs/FirebaseConfig'; // Firebase config
 import { Defines } from '../../constants/Defines';
+
+import { AntDesign } from '@expo/vector-icons';
+import { EvilIcons } from '@expo/vector-icons';
 import PlaceholderProfile from './../../assets/graphics/placeholder-profile.jpg';
 
 const HomePage = () => {
@@ -61,8 +55,7 @@ const HomePage = () => {
     const unsubscribe = onSnapshot(collection(db, 'OnGoingOffers'), (snapshot) => {
       const offersData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        imageRef: doc.data().imageRef,
-        title: doc.data().title || 'Limited Offer',
+        imageRef: doc.data().imageRef
       }));
       setOffers(offersData);
     });
@@ -85,29 +78,38 @@ const HomePage = () => {
       onPress={() => scrollToCategory(index)}
     >
       <View style={styles.categoryBox}>
-        <Text style={styles.categoryEmoji}>🍔</Text> {/* Use emoji as placeholder for the image */}
+        {/*ADD FOOD ICON/IMAGE*/}
       </View>
       <Text style={styles.categoryText}>{item.category}</Text>
     </TouchableOpacity>
   );
 
-  const renderOffer = ({ item }) => (
-    <View style={styles.offerCard}>
-      <Image source={{ uri: item.imageRef }} style={styles.offerImage} />
-      <Text style={styles.offerText}>{item.title}</Text>
+  const renderFoodItem = ({ item }) => (
+    <View style={styles.foodItemContainer}>
+      {/* Left: Food Image */}
+      <Image source={{ uri: item.image }} style={styles.foodImageLeft} />
+  
+      {/* Right: Details */}
+      <View style={styles.foodDetails}>
+        <Text style={styles.foodName}>{item.name}</Text>
+        <Text style={styles.foodDescription}>
+          {/* Example Description */}
+          {item.description || 'Delicious and flavorful food made just for you!'}
+        </Text>
+        <Text style={styles.foodPrice}>{'₹' + item.price}</Text>
+  
+        {/* Order Button */}
+        <TouchableOpacity
+          style={styles.orderButton}
+          onPress={() => navigation.navigate('PlaceOrder', { item })}
+        >
+          <Text style={styles.orderButtonText}>Order</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-
-  const renderFoodItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('PlaceOrder', { item })}>
-      <View style={styles.foodCard}>
-        <Image source={{ uri: item.image }} style={styles.foodImage} />
-        <Text style={styles.foodName}>{item.name}</Text>
-        <Text style={styles.foodPrice}>{'₹' + item.price}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
+  
+  
   const renderFoodCategory = ({ item }) => (
     <View style={styles.categoryContainer}>
       <Text style={styles.categoryTitle}>{item.category}</Text>
@@ -115,12 +117,11 @@ const HomePage = () => {
         data={item.items}
         renderItem={renderFoodItem}
         keyExtractor={(food) => food.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         style={styles.foodList}
       />
     </View>
-  );
+  );  
 
   if (loading) {
     return (
@@ -131,31 +132,52 @@ const HomePage = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View>
+        {/*HEADER CONTAINER*/}
+        <View style={styles.detailsContainer}>
+
+          <View style={styles.header}>
+          <EvilIcons name="location" size={30} color="white" />
+            <Text style={styles.locationText}>Ambagarathur, Karaikal-609601</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+              <Image source={PlaceholderProfile} style={styles.profileImage} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.searchBar}>
+          <AntDesign name="search1" size={24} color={Defines.Colors.Black} style={styles.searchIcon} />
+            <TextInput
+              placeholder="Search Bubble tea"
+              style={styles.searchInput}
+              placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
+            />
+          </View>
+        </View>
+
+      {/*MAIN CONTENT*/}
       <ScrollView contentContainerStyle={styles.scrollContent} ref={scrollViewRef}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Image source={PlaceholderProfile} style={styles.profileImage} />
-          </TouchableOpacity>
-          <Text style={styles.locationText}>Ambagarathur, Karaikal-609601</Text>
-        </View>
 
-        <View style={styles.searchBar}>
-          <TextInput
-            placeholder="Search Bubble tea"
-            style={styles.searchInput}
-            placeholderTextColor="#A0A0A0"
-          />
-        </View>
+        <View style={styles.container}>
 
-        <FlatList
-          data={offers}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={renderOffer}
-          keyExtractor={(item) => item.id}
-          style={styles.offerList}
-        />
+        <View style={styles.swiperContainer}>
+          <Swiper
+            style={styles.swiper}
+            autoplay
+            showsButtons={false}
+            dotColor="#FFF"
+            activeDotColor="#000"
+          >
+            {offers.map((offer) => (
+              <View key={offer.id} style={styles.swiperSlideContainer}>
+              <Image
+                key={offer.id}
+                source={{ uri: offer.imageRef }}
+                style={styles.offerImage}
+              />
+            </View>
+            ))}
+          </Swiper>
+        </View>
 
         <View style={styles.categoriesSection}>
           <Text style={styles.sectionTitle}>What do you like to eat now?</Text>
@@ -169,89 +191,99 @@ const HomePage = () => {
           />
         </View>
 
-        <View style={styles.dealsSection}>
-          <Text style={styles.sectionTitle}>Top Deals</Text>
-          {offers.map((offer) => (
-            <View key={offer.id} style={styles.dealCard}>
-              <Image source={{ uri: offer.imageRef }} style={styles.dealImage} />
-              <Text style={styles.dealText}>{offer.title}</Text>
-            </View>
-          ))}
-        </View>
-
         <View style={styles.categoriesSection}>
           {categories.map((category, index) => (
             <View key={category.category}>{renderFoodCategory({ item: category })}</View>
           ))}
         </View>
+    </View>
       </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  detailsContainer:{
+    backgroundColor: Defines.Colors.Black,
+    marginBottom:20,
+    padding:30,
+    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 30,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 40,
+  },
+  profileImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 25,
+  },
+  locationText: {
+    fontSize: 15,
+    color: Defines.Colors.TextColorWhite,
+    fontFamily: Defines.Fonts.Light,
+    textAlign: 'left',
+    flex: 1,
+    marginTop:8,
+  },
+  searchBar: {
+    flexDirection: 'row', // Aligns items horizontally
+    alignItems: 'center', // Vertically centers items
+    backgroundColor: '#EEE', 
+    borderRadius: 10,
+    paddingHorizontal: 10, 
+    paddingVertical: 5,
+    marginVertical: 10,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1, // Makes the input take the remaining space
+    fontSize: 16, // Adjust text size
+    color: Defines.Colors.PlaceHolderTextColor,
+    paddingTop:20
+  },
+
+  /*BELOW CONTENT*/
   container: {
     flex: 1,
     backgroundColor: Defines.Colors.PrimaryWhite,
   },
   scrollContent: {
     padding: 20,
+    paddingBottom: 250
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+  swiperContainer: {
+    borderRadius: 15, // Apply rounded corners to the container
+    overflow: 'hidden', // Ensures the content is clipped to the border radius
+    marginBottom: 20, // Optional: Adds spacing around the swiper
+    elevation:10,
   },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  swiper: {
+    height: 200, // Adjust the height of the swiper if needed
   },
-  locationText: {
-    fontSize: 14,
-    color: '#333',
-    textAlign: 'right',
+  swiperSlideContainer: {
     flex: 1,
-  },
-  searchBar: {
-    marginBottom: 20,
-  },
-  searchInput: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    height: 50,
-    borderColor: '#E0E0E0',
-    borderWidth: 1,
-    fontSize: 16,
-  },
-  offerList: {
-    marginBottom: 20,
-  },
-  offerCard: {
-    marginRight: 10,
-    borderRadius: 10,
-    overflow: 'hidden',
+    borderRadius: 15, // Apply the same border radius to each swiper slide
+    overflow: 'hidden', // Ensure the slide content is clipped
   },
   offerImage: {
-    width: 200,
-    height: 120,
+    width: '100%',
+    height: '100%',
     resizeMode: 'cover',
   },
-  offerText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    padding: 5,
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: Defines.Fonts.Bold,
+    marginBottom: 10,
+    marginTop: 20,
   },
   categoriesSection: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom:20,
   },
   categoriesList: {
     flexDirection: 'row',
@@ -261,26 +293,21 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   categoryBox: {
-    backgroundColor: Defines.Colors.PrimaryYellow,
-    borderRadius: 15,
-    padding: 20,
+    backgroundColor: Defines.Colors.White,
+    borderRadius: 20,
+    padding: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 10, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  categoryEmoji: {
-    fontSize: 50,
+    marginBottom: 10,
+    elevation:5,
   },
   categoryText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 5,
+    fontSize: 15,
+    fontWeight: Defines.Fonts.Regular,
     color: Defines.Colors.TextColorBlack,
   },
+
+  /*FOOD SECTION*/
   categoryContainer: {
     marginBottom: 20,
   },
@@ -290,59 +317,70 @@ const styles = StyleSheet.create({
     color: Defines.Colors.TextColorBlack,
     marginBottom: 10,
   },
-  foodList: {
-    marginBottom: 10,
-  },
-  foodCard: {
-    backgroundColor: Defines.Colors.PrimaryYellow,
+
+  foodItemContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFF',
     borderRadius: 10,
-    padding: 10,
-    marginRight: 15,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
+    padding: 15,
+    marginBottom: 20,
+    elevation: 3,
   },
-  foodImage: {
+  
+  foodImageLeft: {
     width: 100,
     height: 100,
     borderRadius: 10,
-    marginBottom: 5,
+    marginRight: 15,
   },
+  
+  foodDetails: {
+    flex: 1,
+    justifyContent: 'space-between', // Space between elements
+    paddingVertical: 5,
+  },
+  
   foodName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  foodPrice: {
-    fontSize: 14,
-    color: '#888',
-  },
-  dealCard: {
-    backgroundColor: '#EEE',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  dealImage: {
-    width: '100%',
-    height: 150,
-    borderRadius: 8,
-  },
-  dealText: {
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 10,
+    marginBottom: 5,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
+  
+  foodDescription: {
+    fontSize: 14,
+    color: '#666', // Subtle text color for description
+    marginBottom: 10,
   },
+  
+  foodPrice: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  
+  orderButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 10,
+    backgroundColor: '#000', // Button color
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  
+  orderButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  
+
+loadingContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#FFF',
+},
 });
 
 export default HomePage;
