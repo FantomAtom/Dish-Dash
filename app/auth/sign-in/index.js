@@ -19,7 +19,7 @@ const SignInPage = ({ navigation }) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log('Signed in:', user);
-      navigation.navigate('MainHome'); // Navigate to the home page after successful sign in
+      navigation.replace('MainHome'); // Navigate to the home page after successful sign in
     } catch (error) {
       const errorMessage = error.message;
       console.log(errorMessage);
@@ -59,7 +59,7 @@ const SignInPage = ({ navigation }) => {
 
         <Text style={styles.footerText}>
           Don't have an account?{' '}
-          <Text style={styles.link} onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.link} onPress={() => navigation.replace('SignUp')}>
             Sign Up
           </Text>
         </Text>

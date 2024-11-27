@@ -45,7 +45,7 @@ const SignUpPage = ({ navigation }) => {
         address: address,
       });
       console.log('Signed up:', user);
-      navigation.navigate('MainHome');
+      navigation.replace('MainHome');
     } catch (err) {
       setError(err.message);
       console.log(err.message);
@@ -118,7 +118,7 @@ const SignUpPage = ({ navigation }) => {
 
         <Text style={styles.footerText}>
           Already have an account?{' '}
-          <Text style={styles.link} onPress={() => navigation.navigate('SignIn')}>
+          <Text style={styles.link} onPress={() => navigation.replace('SignIn')}>
             Sign In
           </Text>
         </Text>

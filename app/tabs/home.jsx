@@ -27,6 +27,7 @@ const HomePage = () => {
           image: foodData.imageRef || 'https://via.placeholder.com/150',
           price: foodData.price,
           category: foodData.category,
+          description: foodData.description || 'Delicious and flavorful food made just for you!'
         };
       });
 
@@ -155,7 +156,7 @@ const HomePage = () => {
         </View>
 
       {/*MAIN CONTENT*/}
-      <ScrollView contentContainerStyle={styles.scrollContent} ref={scrollViewRef}>
+      <ScrollView contentContainerStyle={styles.scrollContent} ref={scrollViewRef} showsVerticalScrollIndicator={false}>
 
         <View style={styles.container}>
 
@@ -180,7 +181,7 @@ const HomePage = () => {
         </View>
 
         <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>What do you like to eat now?</Text>
+          <Text style={styles.sectionTitle}>What would you like to eat now?</Text>
           <FlatList
             data={categories}
             renderItem={renderCategory}
