@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
 import { Defines } from './../../../constants/Defines';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './../../../configs/FirebaseConfig';
 
-const SignInPage = ({ navigation }) => {
+const SignInPage = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ const SignInPage = ({ navigation }) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log('Signed in:', user);
-      navigation.replace('MainHome'); // Navigate to the home page after successful sign in
+      navigation.navigate('MainHome'); // Navigate to the home page after successful sign in
     } catch (error) {
       const errorMessage = error.message;
       console.log(errorMessage);
@@ -28,121 +28,103 @@ const SignInPage = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground
-      source={require('./../../../assets/graphics/BACKGROUND.jpg')} // Replace with your image path
-      style={styles.background}
-    >
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <View style={styles.textContainer}>
         <Text style={styles.title}>Sign In</Text>
-
+        
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
+          placeholderTextColor={Defines.Colors.TextColorBlack}
           value={email}
           onChangeText={(text) => setEmail(text)}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
+          placeholderTextColor={Defines.Colors.TextColorBlack}
           secureTextEntry
           value={password}
           onChangeText={(text) => setPassword(text)}
         />
 
-        <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+        <TouchableOpacity 
+          onPress={handleSignIn} // Call handleSignIn function
+          style={styles.button}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <Text style={styles.footerText}>
-          Don't have an account?{' '}
-          <Text style={styles.link} onPress={() => navigation.replace('SignUp')}>
-            Sign Up
-          </Text>
-        </Text>
-
-        <Text style={styles.terms}>
-          By signing in, you agree to our{' '}
-          <Text style={styles.link}>Terms & Conditions</Text> and{' '}
-          <Text style={styles.link}>Privacy Policy</Text>.
+        <Text style={styles.switchText}>Don't have an account? 
+          <Text style={styles.link} onPress={() =>  navigation.navigate('SignUp')}> Sign Up</Text>
         </Text>
       </View>
-    </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Defines.Colors.Black,
-  },
   container: {
-    width: '85%',
-    padding: 20,
-    backgroundColor: Defines.Colors.White,
-    borderRadius: 20,
+    flex: 1,
     alignItems: 'center',
-    elevation: 10,
+    justifyContent: 'center',
+    backgroundColor: Defines.Colors.PrimaryYellow,
+  },
+  textContainer: {
+    backgroundColor: Defines.Colors.TextColorWhite,
+    padding: 30,
+    borderRadius: 50,
+    shadowColor: Defines.Colors.TextColorBlack,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+    width: '80%',
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontFamily: Defines.Fonts.Bold,
     color: Defines.Colors.TextColorBlack,
+    textAlign: 'center',
     marginBottom: 20,
   },
   input: {
-    width: '100%',
     height: 50,
-    borderColor: '#E0E0E0',
+    borderColor: Defines.Colors.TextColorBlack,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
-    fontSize: 16,
     fontFamily: Defines.Fonts.Regular,
+    fontSize: 16,
     color: Defines.Colors.TextColorBlack,
   },
   button: {
     backgroundColor: Defines.Colors.ButtonColor,
-    width: '100%',
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 15,
     alignItems: 'center',
-    marginTop: 10,
   },
   buttonText: {
-    color: Defines.Colors.TextColorWhite,
     fontSize: 18,
     fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.TextColorWhite,
   },
-  errorText: {
-    color: Defines.Colors.Red,
-    marginTop: 10,
+  switchText: {
     textAlign: 'center',
-  },
-  footerText: {
-    marginTop: 20,
-    fontSize: 14,
+    marginTop: 15,
+    fontFamily: Defines.Fonts.Regular,
     color: Defines.Colors.TextColorBlack,
-    fontFamily: Defines.Fonts.Regular,
-    textAlign: 'center',
-  },
-  terms: {
-    marginTop: 10,
-    fontSize: 12,
-    color: Defines.Colors.PlaceHolderTextColor,
-    textAlign: 'center',
-    fontFamily: Defines.Fonts.Regular,
   },
   link: {
     color: Defines.Colors.ButtonColor,
-    fontFamily: Defines.Fonts.Regular,
+    fontFamily: Defines.Fonts.Bold,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
 
