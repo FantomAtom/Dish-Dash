@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {View,Text,StyleSheet,TouchableOpacity,FlatList,ScrollView,Image,TextInput,ActivityIndicator,} from 'react-native';
 import Swiper from 'react-native-swiper'; // For swiping between offers
 import { useNavigation } from '@react-navigation/native';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from './../../configs/FirebaseConfig'; // Firebase config
+
+import { db,auth } from './../../configs/FirebaseConfig'; // Firebase config
+import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
+
 import { Defines } from '../../constants/Defines';
 
 import { AntDesign } from '@expo/vector-icons';
@@ -13,9 +15,38 @@ import PlaceholderProfile from './../../assets/graphics/placeholder-profile.jpg'
 const HomePage = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null); // Reference for scrolling
+  const categoryPositions = useRef({}); // To store the position of each category
   const [categories, setCategories] = useState([]);
+
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [userDetails, setUserDetails] = useState({});
+  const [name, setName] = useState('');
+  const [photo, setPhoto] = useState(null);
+  const [address, setAddress] = useState('');
+  
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, 'UserDetails', auth.currentUser.uid),
+      (userDoc) => {
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setUserDetails(data);
+          setName(data.name);
+          setAddress(data.address || 'Address not available');
+          setPhoto(data.profilePicture || PlaceholderProfile);
+        } else {
+          console.error('User document does not exist');
+        }
+      },
+      (error) => {
+        console.error('Error fetching user details:', error);
+      }
+    );
+  
+    return () => unsubscribe(); // Cleanup listener on unmount
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'FoodItems'), (snapshot) => {
@@ -27,7 +58,7 @@ const HomePage = () => {
           image: foodData.imageRef || 'https://via.placeholder.com/150',
           price: foodData.price,
           category: foodData.category,
-          description: foodData.description || 'Delicious and flavorful food made just for you!'
+          description: foodData.description || 'Delicious and flavorful food made just for you!',
         };
       });
 
@@ -56,7 +87,7 @@ const HomePage = () => {
     const unsubscribe = onSnapshot(collection(db, 'OnGoingOffers'), (snapshot) => {
       const offersData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        imageRef: doc.data().imageRef
+        imageRef: doc.data().imageRef,
       }));
       setOffers(offersData);
     });
@@ -64,150 +95,150 @@ const HomePage = () => {
     return () => unsubscribe();
   }, []);
 
-  const scrollToCategory = (index) => {
-    if (scrollViewRef.current) {
+  const scrollToCategory = (category) => {
+    const position = categoryPositions.current[category];
+    if (position && scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
-        y: index * 250, // Adjust scrolling distance based on content height
+        y: position,
         animated: true,
       });
     }
   };
 
-  const renderCategory = ({ item, index }) => (
-    <TouchableOpacity
-      style={styles.categoryButton}
-      onPress={() => scrollToCategory(index)}
-    >
-      <View style={styles.categoryBox}>
-        {/*ADD FOOD ICON/IMAGE*/}
-      </View>
-      <Text style={styles.categoryText}>{item.category}</Text>
-    </TouchableOpacity>
-  );
-
-  const renderFoodItem = ({ item }) => (
-    <View style={styles.foodItemContainer}>
-      {/* Left: Food Image */}
-      <Image source={{ uri: item.image }} style={styles.foodImageLeft} />
-  
-      {/* Right: Details */}
-      <View style={styles.foodDetails}>
-        <Text style={styles.foodName}>{item.name}</Text>
-        <Text style={styles.foodDescription}>
-          {/* Example Description */}
-          {item.description || 'Delicious and flavorful food made just for you!'}
-        </Text>
-        <Text style={styles.foodPrice}>{'₹' + item.price}</Text>
-  
-        {/* Order Button */}
-        <TouchableOpacity
-          style={styles.orderButton}
-          onPress={() => navigation.navigate('PlaceOrder', { item })}
-        >
-          <Text style={styles.orderButtonText}>Order</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-  
-  
-  const renderFoodCategory = ({ item }) => (
-    <View style={styles.categoryContainer}>
-      <Text style={styles.categoryTitle}>{item.category}</Text>
-      <FlatList
-        data={item.items}
-        renderItem={renderFoodItem}
-        keyExtractor={(food) => food.id}
-        showsVerticalScrollIndicator={false}
-        style={styles.foodList}
-      />
-    </View>
-  );  
+  const handleCategoryLayout = (category, event) => {
+    const { y } = event.nativeEvent.layout;
+    categoryPositions.current[category] = y;
+  };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Defines.Colors.TextColorBlack} />
+        <ActivityIndicator size="large" color="black" />
       </View>
     );
   }
 
   return (
     <View>
-        {/*HEADER CONTAINER*/}
-        <View style={styles.detailsContainer}>
+      {/* HEADER CONTAINER */}
+      <View style={styles.detailsContainer}>
+        <View style={styles.header}>
 
-          <View style={styles.header}>
+          {/* LOCATION WITH ICON */}
           <EvilIcons name="location" size={30} color="white" />
-            <Text style={styles.locationText}>Ambagarathur, Karaikal-609601</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-              <Image source={PlaceholderProfile} style={styles.profileImage} />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.locationText}>{address}</Text>
 
-          <View style={styles.searchBar}>
-          <AntDesign name="search1" size={24} color={Defines.Colors.Black} style={styles.searchIcon} />
-            <TextInput
-              placeholder="Search Bubble tea"
-              style={styles.searchInput}
-              placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
-            />
-          </View>
+          {/* PROFILE PICTURE */}
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Image source={{ uri: photo }} style={styles.profileImage} />
+          </TouchableOpacity>
         </View>
 
-      {/*MAIN CONTENT*/}
-      <ScrollView contentContainerStyle={styles.scrollContent} ref={scrollViewRef} showsVerticalScrollIndicator={false}>
-
-        <View style={styles.container}>
-
-        <View style={styles.swiperContainer}>
-          <Swiper
-            style={styles.swiper}
-            autoplay
-            showsButtons={false}
-            dotColor="#FFF"
-            activeDotColor="#000"
-          >
-            {offers.map((offer) => (
-              <View key={offer.id} style={styles.swiperSlideContainer}>
-              <Image
-                key={offer.id}
-                source={{ uri: offer.imageRef }}
-                style={styles.offerImage}
-              />
-            </View>
-            ))}
-          </Swiper>
+        {/* NAME */}
+        <View style={styles.nameContainer}>
+          <Text style={styles.nameText}>{name}</Text>
         </View>
 
-        <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>What would you like to eat now?</Text>
-          <FlatList
-            data={categories}
-            renderItem={renderCategory}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.category}
-            style={styles.categoriesList}
+        {/* SEARCH BAR */}
+        <View style={styles.searchBar}>
+          <AntDesign
+            name="search1"
+            size={24}
+            color="black"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            placeholder="Search Bubble tea"
+            style={styles.searchInput}
+            placeholderTextColor="gray"
           />
         </View>
+      </View>
 
-        <View style={styles.categoriesSection}>
-          {categories.map((category, index) => (
-            <View key={category.category}>{renderFoodCategory({ item: category })}</View>
-          ))}
+    {/* MAIN CONTENT */}
+    <ScrollView 
+  ref={scrollViewRef} 
+  contentContainerStyle={styles.scrollContent} 
+  showsVerticalScrollIndicator={false}
+>
+  {/* Swiper Component */}
+  <View style={styles.swiperContainer}>
+    <Swiper
+      style={styles.swiper}
+      autoplay
+      showsButtons={false}
+      dotColor="#FFF"
+      activeDotColor="#000"
+    >
+      {offers.map((offer) => (
+        <View key={offer.id} style={styles.swiperSlideContainer}>
+          <Image
+            source={{ uri: offer.imageRef }}
+            style={styles.offerImage}
+          />
         </View>
+      ))}
+    </Swiper>
+  </View>
+
+  {/* Categories Section */}
+  <View style={styles.categoriesSection}>
+    <Text style={styles.sectionTitle}>What would you like to eat now?</Text>
+    <FlatList
+      data={categories}
+      renderItem={({ item }) => (
+        <TouchableOpacity 
+          style={styles.categoryButton} 
+          onPress={() => scrollToCategory(item.category)}
+        >
+          <View style={styles.categoryBox}></View>
+          <Text style={styles.categoryText}>{item.category}</Text>
+        </TouchableOpacity>
+      )}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={(item) => item.category}
+      style={styles.categoriesList}
+    />
+  </View>
+
+  {/* Category Items */}
+  {categories.map((category) => (
+    <View 
+      key={category.category} 
+      onLayout={(event) => handleCategoryLayout(category.category, event)} 
+      style={styles.categoryContainer}
+    >
+      <Text style={styles.categoryTitle}>{category.category}</Text>
+      {category.items.map((item) => (
+        <View key={item.id} style={styles.foodItemContainer}>
+          <Image source={{ uri: item.image }} style={styles.foodImageLeft} />
+          <View style={styles.foodDetails}>
+            <Text style={styles.foodName}>{item.name}</Text>
+            <Text style={styles.foodDescription}>{item.description}</Text>
+            <Text style={styles.foodPrice}>{'₹' + item.price}</Text>
+            <TouchableOpacity 
+              style={styles.orderButton} 
+              onPress={() => navigation.navigate('PlaceOrder', { item })}
+            >
+              <Text style={styles.orderButtonText}>Order</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ))}
     </View>
-      </ScrollView>
-    </View>
+  ))}
+</ScrollView>
+
+  </View>
   );
 };
 
 const styles = StyleSheet.create({
-  detailsContainer:{
+  detailsContainer: {
     backgroundColor: Defines.Colors.Black,
-    marginBottom:20,
-    padding:30,
+    marginBottom: 20,
+    padding: 30,
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
   },
@@ -215,38 +246,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 40,
   },
   profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 25,
+    width: 70,
+    height: 70,
+    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: Defines.Colors.PrimaryWhite,
+    marginLeft: 20,
   },
   locationText: {
     fontSize: 15,
     color: Defines.Colors.TextColorWhite,
     fontFamily: Defines.Fonts.Light,
     textAlign: 'left',
+    marginLeft: 10, // Spacing between icon and text
     flex: 1,
-    marginTop:8,
+  },
+  nameContainer: {
+    marginTop: 10, // Adds spacing between header and name
+    marginLeft: 10, // Aligns the name with the location text
+  },
+  nameText: {
+    fontSize: 20,
+    color: Defines.Colors.TextColorWhite,
+    fontFamily: Defines.Fonts.Regular,
+    textAlign: 'left',
   },
   searchBar: {
-    flexDirection: 'row', // Aligns items horizontally
-    alignItems: 'center', // Vertically centers items
-    backgroundColor: '#EEE', 
+    marginTop: 20, // Adds spacing between the name and the search bar
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Defines.Colors.White,
     borderRadius: 10,
-    paddingHorizontal: 10, 
+    paddingHorizontal: 10,
     paddingVertical: 5,
-    marginVertical: 10,
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: 10,
   },
   searchInput: {
-    flex: 1, // Makes the input take the remaining space
-    fontSize: 16, // Adjust text size
-    color: Defines.Colors.PlaceHolderTextColor,
-    paddingTop:20
+    flex: 1,
+    color: Defines.Colors.Black,
+    fontSize: 16,
   },
 
   /*BELOW CONTENT*/
