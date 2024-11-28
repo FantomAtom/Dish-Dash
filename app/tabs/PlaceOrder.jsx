@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+  ScrollView,
+} from 'react-native';
 import { db } from '../../configs/FirebaseConfig';
 import { doc, setDoc, collection, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { Defines } from './../../constants/Defines'; // Assuming you defined Fonts and Colors in this file
 
 export default function PlaceOrderPage({ route, navigation }) {
   const { item } = route.params;
@@ -10,8 +20,8 @@ export default function PlaceOrderPage({ route, navigation }) {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [orderType, setOrderType] = useState('Delivery'); // Default is Delivery
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderType, setOrderType] = useState('Delivery'); // Default to Delivery
   const totalPrice = item.price * quantity;
 
   useEffect(() => {
@@ -37,27 +47,22 @@ export default function PlaceOrderPage({ route, navigation }) {
     const user = auth.currentUser;
 
     if (!user) {
-      alert("Please log in to place an order.");
+      Alert.alert("Error", "Please log in to place an order.");
       return;
     }
 
-    // Validation checks
-    if (quantity <= 0) {
-      Alert.alert("Error", "Quantity must be at least 1.");
+    if (quantity <= 0 || quantity >= 50) {
+      Alert.alert("Error", "Quantity must be between 1 and 50.");
       return;
     }
 
-    if (quantity >= 50) {
-      Alert.alert("Error", "Quantity must be below 50.");
-      return;
-    }
-
-    if (isSubmitting) return; // Prevent multiple submissions
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
     try {
       const orderData = {
         itemName: item.name,
+        itemDescription: item.description,
         itemPrice: item.price,
         quantity,
         totalPrice,
@@ -70,33 +75,42 @@ export default function PlaceOrderPage({ route, navigation }) {
         timestamp: new Date(),
       };
 
-      // Create a reference to the user's orders subcollection
       const orderRef = collection(db, 'Orders', user.uid, 'cart');
-
-      // Add order to the user's subcollection
       await setDoc(doc(orderRef), orderData);
-      alert('Order placed successfully!');
-      navigation.navigate('Cart');
+      Alert.alert('Success', 'Order placed successfully!');
+      navigation.goBack();
     } catch (error) {
       console.error("Error placing order: ", error);
-      Alert.alert("Error", "There was a problem placing your order. Please try again.");
+      Alert.alert("Error", "There was an issue placing your order.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
+    
     <View style={styles.container}>
-      <Text style={styles.itemTitle}>{item.name}</Text>
-      <Text style={styles.itemPrice}>Price per item: ₹{item.price}</Text>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      {/* Food Image */}
+      <Image source={{ uri: item.image }} style={styles.foodImage} />
 
-      <Text style={styles.label}>Your Name:</Text>
+      {/* Food Details */}
+      <View style={styles.foodDetails}>
+        <View style={styles.foodTitleContainer}>
+          <Text style={styles.foodTitle}>{item.name}</Text>
+          <Text style={styles.foodPrice}>₹{item.price}</Text>
+        </View>
+        <Text style={styles.foodDescription}>{item.description}</Text>
+      </View>
+
+      {/* Order Details */}
+      <Text style={styles.label}>Name:</Text>
       <Text style={styles.infoText}>{name}</Text>
 
       <Text style={styles.label}>Address:</Text>
       <Text style={styles.infoText}>{address}</Text>
 
-      <Text style={styles.label}>Phone Number:</Text>
+      <Text style={styles.label}>Phone:</Text>
       <Text style={styles.infoText}>{phone}</Text>
 
       <Text style={styles.label}>Quantity:</Text>
@@ -123,9 +137,12 @@ export default function PlaceOrderPage({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.totalPrice}>Total Price: ₹{totalPrice}</Text>
-
-      <Button title="Place Order" onPress={handlePlaceOrder} disabled={isSubmitting} />
+    </ScrollView>
+      {/* Place Order Button */}
+      <TouchableOpacity style={styles.placeOrderButton} onPress={handlePlaceOrder}>
+        <Text style={styles.placeOrderText}>Place Order</Text>
+        <Text style={styles.totalPriceText}>₹{totalPrice}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -133,56 +150,100 @@ export default function PlaceOrderPage({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: Defines.Colors.PrimaryWhite,
+    padding:20
   },
-  itemTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  foodImage: {
+    width: 300,
+    height: 300,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginTop: 20,
+    alignSelf: 'center',
+    elevation: 10,
+  },
+  foodDetails: {
     marginBottom: 10,
   },
-  itemPrice: {
-    fontSize: 18,
-    marginBottom: 20,
+  foodTitleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  foodTitle: {
+    fontSize: 24,
+    fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.TextColorBlack,
+  },
+  foodPrice: {
+    fontSize: 20,
+    fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.ButtonColor,
+  },
+  foodDescription: {
+    fontSize: 16,
+    fontFamily: Defines.Fonts.Regular,
+    color: Defines.Colors.PlaceHolderTextColor,
   },
   label: {
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: Defines.Fonts.Bold,
     marginBottom: 5,
+    color: Defines.Colors.TextColorBlack,
   },
   infoText: {
     fontSize: 16,
+    fontFamily: Defines.Fonts.Regular,
+    color: Defines.Colors.TextColorBlack,
     marginBottom: 15,
-    color: '#555',
   },
   quantityInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: Defines.Colors.PlaceHolderTextColor,
     padding: 10,
+    fontSize: 16,
+    fontFamily: Defines.Fonts.Regular,
     marginBottom: 20,
-  },
-  totalPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 20,
+    borderRadius: 5,
+    width: 100,
+    alignSelf: 'flex-start',
   },
   orderTypeContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     marginBottom: 20,
   },
   orderTypeButton: {
     padding: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: Defines.Colors.PlaceHolderTextColor,
     borderRadius: 5,
-    width: '40%',
+    marginHorizontal: 5,
+    width: '45%',
     alignItems: 'center',
   },
   selectedOrderType: {
-    backgroundColor: '#f0f0f0',
-    borderColor: '#000',
+    backgroundColor: Defines.Colors.ButtonColor,
+    borderColor: Defines.Colors.TextColorBlack,
   },
-  orderTypeText: {
-    fontSize: 16,
+  placeOrderButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Defines.Colors.ButtonColor,
+    padding: 20,
+    borderRadius: 15,
+    justifyContent: 'space-between',
+    marginTop: 20,
+    elevation: 5,
+  },
+  placeOrderText: {
+    fontSize: 20,
+    fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.TextColorWhite,
+  },
+  totalPriceText: {
+    fontSize: 20,
+    fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.TextColorWhite,
   },
 });

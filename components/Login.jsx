@@ -1,80 +1,83 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ImageBackground } from 'react-native';
 import { Defines } from './../constants/Defines';
-import DeliveryGif from './../assets/graphics/delivery.gif';
 
-const LoginPage = ({navigation}) => {
-  
+import FoodImage from './../assets/graphics/login-food-image.png';
+import BackgroundImage from './../assets/graphics/BACKGROUND.jpg';
+
+const LoginPage = ({ navigation }) => {
   return (
-    <View style={styles.container}>
-      <Image 
-        source={DeliveryGif}
-        style={styles.image}
-      />
+    <ImageBackground 
+      source={BackgroundImage} 
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
+        <View style={styles.imageWrapper}>
+          <Image 
+            source={FoodImage} 
+            style={styles.image} 
+          />
+        </View>
 
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>Delicious Meals Delivered to You!</Text>
-        <Text style={styles.subtitle}>Order your favorite food with just a few taps.</Text>
+        <Text style={styles.subtitle}>
+          Food and grocery delivery from restaurants and stores!
+        </Text>
 
         <TouchableOpacity 
-          onPress={() => navigation.navigate('SignIn')}
-          style={styles.button}>
-          <Text style={styles.buttonText}>Start Ordering</Text>
+          onPress={() => navigation.navigate('SignIn')} 
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>START USING</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'center', // Ensures the image covers the whole screen
+    padding:10,
+  },
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    backgroundColor: Defines.Colors.PrimaryYellow,
-  },
-  image: {
-    width: '100%',
-    height: '55%',
-    marginBottom: 10,
-    marginLeft: 100, //Pushes the image to the right
-  },
-  textContainer: {
-    alignItems: 'center',
-    backgroundColor: Defines.Colors.TextColorWhite,
-    padding: 30,
-    borderRadius: 50,
-    shadowColor: Defines.Colors.TextColorBlack, // Shadow color
-    shadowOffset: { width: 0, height: 5 }, // X and Y offset
-    shadowOpacity: 0.25, // Shadow opacity
-    shadowRadius: 10, // Shadow radius
-    elevation: 5, // Elevation for Android
-  },
-  title: {
-    fontSize: 30,
-    fontFamily: Defines.Fonts.Bold,
-    color: Defines.Colors.TextColorBlack,
-    textAlign: 'center',
-    marginBottom: 10,
+    justifyContent: 'space-evenly',
     padding: 20,
   },
+  imageWrapper: {
+    backgroundColor: '#FFF',
+    borderRadius: 200,
+    padding: 20,
+    elevation: 5, // Shadow for Android
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    marginBottom: 20,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    borderRadius: 100, // Circular image
+  },
   subtitle: {
-    fontSize: 20,
-    fontFamily: Defines.Fonts.Regular,
-    color: Defines.Colors.TextColorBlack,
+    color: Defines.Colors.TextColorWhite,
+    fontSize: 30,
     textAlign: 'center',
-    marginBottom: 50,
+    marginVertical: 10,
+    fontFamily: Defines.Fonts.Regular,
   },
   button: {
     backgroundColor: Defines.Colors.ButtonColor,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 30,
   },
   buttonText: {
-    fontSize: 18,
+    color: '#FFF',
+    fontSize: 15,
     fontFamily: Defines.Fonts.Bold,
-    color: Defines.Colors.TextColorWhite,
   },
 });
 
