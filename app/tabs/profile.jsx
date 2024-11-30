@@ -300,7 +300,8 @@ const ProfilePage = ({navigation}) => {
           <Text style={styles.actionText}>Edit Details</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton} onPress={() => { navigation.navigate('Cart');}}>
+        <TouchableOpacity style={styles.actionButton}
+        onPress={() => { navigation.replace('MainHome', { screen: 'Cart' });}}>
           <Text style={styles.actionText}>Order History</Text>
         </TouchableOpacity>
 
@@ -360,12 +361,9 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 15,
     marginBottom: 40,
+    marginTop: 40,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
+    elevation: 10,
   },
   profileDetailsContainer: {
     alignItems: 'center',
@@ -411,6 +409,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginVertical: 10,
+    elevation:5,
   },
   actionText: {
     fontSize: 18,
@@ -429,10 +428,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     elevation: 5,
   },
   modalTitle: {
