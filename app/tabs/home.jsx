@@ -30,26 +30,37 @@ const HomePage = () => {
   const [address, setAddress] = useState('');
   
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(db, 'UserDetails', auth.currentUser.uid),
-      (userDoc) => {
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setUserDetails(data);
-          setName(data.name);
-          setAddress(data.address || 'Address not available');
-          setPhoto(data.profilePicture || PlaceholderProfile);
-        } else {
-          console.error('User document does not exist');
-        }
-      },
-      (error) => {
-        console.error('Error fetching user details:', error);
-      }
-    );
+    if (auth.currentUser) {
+      const unsubscribe = onSnapshot(
+        doc(db, 'UserDetails', auth.currentUser.uid),
+        (userDoc) => {
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setUserDetails(data);
+            setName(data.name);
+            setAddress(data.address || 'Address not available');
   
-    return () => unsubscribe(); // Cleanup listener on unmount
+            // Correctly handle profile picture
+            if (data.profilePicture) {
+              setPhoto({ uri: data.profilePicture }); // Remote URI
+            } else {
+              setPhoto(PlaceholderProfile); // Local image
+            }
+          } else {
+            console.error('User document does not exist');
+          }
+        },
+        (error) => {
+          console.error('Error fetching user details:', error);
+        }
+      );
+  
+      return () => unsubscribe();
+    } else {
+      console.error('User not authenticated.');
+    }
   }, []);
+  
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'FoodItems'), (snapshot) => {
@@ -145,7 +156,8 @@ const HomePage = () => {
 
           {/* PROFILE PICTURE */}
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Image source={{ uri: photo }} style={styles.profileImage} />
+          <Image source={photo} // `photo` will be either a local image or a URI object
+            style={styles.profileImage}/>
           </TouchableOpacity>
         </View>
 
