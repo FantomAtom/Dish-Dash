@@ -17,6 +17,9 @@ const tabBarOptions = {
     height: 80,
     paddingBottom: 10,
     paddingTop: 10,
+    borderTopWidth: 0, // Remove the border line at the top of the tab bar
+    elevation: 0, // Android: Remove shadow
+    shadowOpacity: 0, // iOS: Remove shadow
   },
   tabBarLabelStyle: {
     fontSize: 15,

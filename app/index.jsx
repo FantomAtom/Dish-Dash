@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import { StatusBar, View, ActivityIndicator } from 'react-native';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { onAuthStateChanged } from 'firebase/auth'; // Firebase auth listener
 import { auth } from '../configs/FirebaseConfig';
 
 import { Defines } from '../constants/Defines';
@@ -13,19 +13,29 @@ import SignUpPage from './auth/sign-up';
 import PlaceOrderPage from './tabs/PlaceOrder';
 import ProfilePage from './tabs/profile';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const [user] = useAuthState(auth); // Check user authentication
+  const [user, setUser] = useState(null); // Track user authentication state
+  const [loading, setLoading] = useState(true); // Track loading state
   const [fontsLoaded] = useFonts({
     'Poppins-Regular': require('./../assets/fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('./../assets/fonts/Poppins-Bold.ttf'),
     'Poppins-Light': require('./../assets/fonts/Poppins-Light.ttf'),
   });
 
-  if (!fontsLoaded) {
+  // Monitor authentication state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false); // Stop loading once the state is resolved
+    });
+
+    return () => unsubscribe(); // Clean up the listener
+  }, []);
+
+  // Display a loading indicator until authentication and fonts are loaded
+  if (!fontsLoaded || loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color={Defines.Colors.HighlightColor} />
@@ -34,8 +44,8 @@ const App = () => {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" backgroundColor={Defines.Colors.StatusBarColor} />
+    <>
+      <StatusBar barStyle="light-content" backgroundColor={Defines.Colors.Black} />
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -58,7 +68,7 @@ const App = () => {
           </>
         )}
       </Stack.Navigator>
-    </GestureHandlerRootView>
+    </>
   );
 };
 

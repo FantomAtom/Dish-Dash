@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './../../../configs/FirebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from './../../../configs/FirebaseConfig';
+import Feather from '@expo/vector-icons/Feather';
 
 const SignUpPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -14,37 +15,34 @@ const SignUpPage = ({ navigation }) => {
   const [rePassword, setRePassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [rePasswordVisible, setRePasswordVisible] = useState(false);
 
   const handleSignUp = async () => {
     if (!email || !password || !name || !rePassword || !address) {
       ToastAndroid.show('Please fill in all fields.', ToastAndroid.SHORT);
       return;
     }
-  
-    // Check if passwords match
+
     if (password !== rePassword) {
       ToastAndroid.show('Passwords do not match.', ToastAndroid.SHORT);
       return;
     }
-  
-    // Validate phone number format (example: only digits, and length between 10-15)
+
     const phoneRegex = /^[0-9]{10,15}$/;
     if (!phoneRegex.test(phoneNumber)) {
       ToastAndroid.show('Please enter a valid phone number.', ToastAndroid.SHORT);
       return;
     }
-  
+
     try {
-      // Create a new user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
-      // Ensure user object is properly initialized
+
       if (!user || !user.uid) {
         throw new Error('User ID is unavailable.');
       }
-  
-      // Add user details to Firestore
+
       await setDoc(doc(db, 'UserDetails', user.uid), {
         name: name,
         email: email,
@@ -52,35 +50,39 @@ const SignUpPage = ({ navigation }) => {
         address: address,
       });
 
-      console.log('Creating user with email:', email);
-      console.log('User created:', user.uid);
-      console.log('Writing to Firestore for user:', user.uid);
-
-      await setDoc(doc(db, 'TestCollection', 'testDoc'), {
-        testField: 'testValue',
-      });
-      console.log('Test write to Firestore succeeded');
-      
-      // Redirect to the main home page
       navigation.replace('MainHome');
-    } catch (err) {
-      console.error('Sign-up error:', err.message);
-      ToastAndroid.show(err.message, ToastAndroid.LONG);
+    } catch (error) {
+      let errorMessage = 'An unknown error occurred.';
+  
+      // Map Firebase error codes to user-friendly messages
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already registered.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'The password is too weak.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please try again.';
+          break;
+      }
+  
+      setError(errorMessage);  
     }
   };
-  
 
   return (
     <ImageBackground
-      source={require('./../../../assets/graphics/BACKGROUND.jpg')} // Replace with your image path
+      source={require('./../../../assets/graphics/BACKGROUND.jpg')}
       style={styles.background}
     >
       <View style={styles.container}>
         <Text style={styles.title}>Sign Up</Text>
-
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <TextInput
+          
+          <TextInput
           style={styles.input}
           placeholder="Name"
           placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
@@ -107,32 +109,57 @@ const SignUpPage = ({ navigation }) => {
           placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={phoneNumber}
           onChangeText={(text) => {
-            // Only allow digits in phone number input
-            const formattedText = text.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+            const formattedText = text.replace(/[^0-9]/g, '');
             setPhoneNumber(formattedText);
           }}
-          keyboardType="phone-pad" // Show numeric keyboard
+          keyboardType="phone-pad"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Re-enter Password"
-          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
-          secureTextEntry
-          value={rePassword}
-          onChangeText={setRePassword}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
+            secureTextEntry={!passwordVisible}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setPasswordVisible(!passwordVisible)}
+          >
+            <Feather
+              name={passwordVisible ? 'eye' : 'eye-off'}
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Re-enter Password"
+            placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
+            secureTextEntry={!rePasswordVisible}
+            value={rePassword}
+            onChangeText={setRePassword}
+          />
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setRePasswordVisible(!rePasswordVisible)}
+          >
+            <Feather
+              name={rePasswordVisible ? 'eye' : 'eye-off'}
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity onPress={handleSignUp} style={styles.button}>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
+
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <Text style={styles.footerText}>
           Already have an account?{' '}
@@ -207,6 +234,15 @@ const styles = StyleSheet.create({
   link: {
     color: Defines.Colors.ButtonColor,
     fontFamily: Defines.Fonts.Regular,
+  },
+  passwordContainer: {
+    position: 'relative',
+    width: '100%',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 13,
   },
 });
 

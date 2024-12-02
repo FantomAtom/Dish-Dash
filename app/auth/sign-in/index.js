@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ToastAndroid,
+  ImageBackground,
+} from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 import { Defines } from './../../../constants/Defines';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './../../../configs/FirebaseConfig';
@@ -8,25 +17,38 @@ const SignInPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false); // Track password visibility
 
   const handleSignIn = async () => {
     if (!email || !password) {
       ToastAndroid.show('Please fill in all fields.', ToastAndroid.SHORT);
       return;
     }
-
+  
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log('Signed in:', user);
       navigation.replace('MainHome'); // Navigate to the home page after successful sign in
     } catch (error) {
-      const errorMessage = error.message;
-      console.log(errorMessage);
-      setError(errorMessage); // Set the error message to display
-    }
-  };
-
+        switch (error.code) {
+          case 'auth/invalid-email':
+            errorMessage = 'Incorrect email.';
+            break;
+          case 'auth/invalid-credential':
+            errorMessage = 'Incorrect password.';
+            break;
+          case 'auth/network-request-failed':
+            errorMessage = 'Network error. Please try again.';
+            break;
+        default:
+          errorMessage = 'An unknown error occurred.';
+          break;
+        }
+      }
+    setError(errorMessage); // Display the appropriate error message
+};
+  
   return (
     <ImageBackground
       source={require('./../../../assets/graphics/BACKGROUND.jpg')} // Replace with your image path
@@ -42,14 +64,27 @@ const SignInPage = ({ navigation }) => {
           value={email}
           onChangeText={(text) => setEmail(text)}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
-          secureTextEntry
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-        />
+
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
+            secureTextEntry={!passwordVisible} // Toggle visibility
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+          />
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setPasswordVisible(!passwordVisible)}
+          >
+            <Feather
+              name={passwordVisible ? 'eye' : 'eye-off'}
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity onPress={handleSignIn} style={styles.button}>
           <Text style={styles.buttonText}>Sign In</Text>
@@ -107,6 +142,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: Defines.Fonts.Regular,
     color: Defines.Colors.TextColorBlack,
+  },
+  passwordContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#E0E0E0',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+    fontSize: 16,
+    fontFamily: Defines.Fonts.Regular,
+    color: Defines.Colors.TextColorBlack,
+  },
+  eyeIcon: {
+    marginLeft: 10,
   },
   button: {
     backgroundColor: Defines.Colors.ButtonColor,

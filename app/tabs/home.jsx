@@ -175,14 +175,12 @@ const HomePage = () => {
             style={styles.searchIcon}
           />
           <TextInput
-            placeholder="Search Bubble tea"
+            placeholder="Search"
             style={styles.searchInput}
             placeholderTextColor="gray"
           />
         </View>
       </View>
-
-    {/* MAIN CONTENT */}
     <ScrollView 
   ref={scrollViewRef} 
   contentContainerStyle={styles.scrollContent} 
@@ -264,7 +262,6 @@ const HomePage = () => {
     </View>
   ))}
 </ScrollView>
-
   </View>
   );
 };
@@ -288,14 +285,14 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     borderWidth: 2,
     borderColor: Defines.Colors.PrimaryWhite,
-    marginLeft: 20,
+    marginLeft: 25,
   },
   locationText: {
-    fontSize: 15,
+    fontSize: 13,
     color: Defines.Colors.TextColorWhite,
     fontFamily: Defines.Fonts.Light,
     textAlign: 'left',
-    marginLeft: 10, // Spacing between icon and text
+    marginLeft: 12, // Spacing between icon and text
     flex: 1,
   },
   nameContainer: {
@@ -333,7 +330,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 250
+    paddingBottom: 250,
+    backgroundColor: Defines.Colors.PrimaryWhite,
   },
   swiperContainer: {
     borderRadius: 15, // Apply rounded corners to the container
@@ -437,7 +435,7 @@ const styles = StyleSheet.create({
   
   foodPrice: {
     fontSize: 16,
-    fontWeight: Defines.Fonts.Regular,
+    fontFamily: Defines.Fonts.Regular,
     color: Defines.Colors.TextColorGreen
   },
   
