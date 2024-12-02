@@ -44,8 +44,8 @@ const ProfilePage = ({navigation}) => {
   };
 
   const handlePhotoSelection = () => {
-    if (photo) {
-      // If there's a photo, show options to change or remove it
+    if (photo && photo !== PlaceholderProfile) {
+      // Show options to change or remove the custom profile photo
       Alert.alert(
         'Profile Photo',
         'Choose an option',
@@ -56,7 +56,7 @@ const ProfilePage = ({navigation}) => {
         ]
       );
     } else {
-      // If there's no photo, only allow selecting a new one
+      // Show options to set a new photo
       Alert.alert(
         'Profile Photo',
         'Choose an option',
@@ -67,10 +67,10 @@ const ProfilePage = ({navigation}) => {
       );
     }
   };
-
+  
   const selectNewPhoto = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -150,49 +150,29 @@ const ProfilePage = ({navigation}) => {
   const removePhoto = async () => {
     const user = auth.currentUser;
     if (!user) {
-        Alert.alert('Error', 'User not authenticated.');
-        return;
+      Alert.alert('Error', 'User not authenticated.');
+      return;
     }
-
+  
     try {
-        // Delete the profile picture field in Firestore
-        await updateDoc(doc(db, 'UserDetails', user.uid), {
-            profilePicture: deleteField() // Use deleteField to remove the field
-        });
-
-        // Delete the photo from Firebase Storage
-        await deleteProfilePictureFromStorage(user.uid); // Call the new function to delete from storage
-
-        // Update the local state to reflect the removed photo
-        setPhoto(null); // Set to null or keep it as a default if desired
-
-        Alert.alert('Success', 'Profile picture removed successfully!');
+      // Delete the profile picture field in Firestore
+      await updateDoc(doc(db, 'UserDetails', user.uid), {
+        profilePicture: deleteField(), // Remove the profilePicture field
+      });
+  
+      // Delete the photo from Firebase Storage
+      await deleteProfilePictureFromStorage(`profilePictures/${user.uid}.jpg`);
+  
+      // Reset the photo to the placeholder
+      setPhoto(PlaceholderProfile);
+  
+      Alert.alert('Success', 'Profile picture removed successfully!');
     } catch (error) {
-        console.error('Error removing profile picture:', error);
-        Alert.alert('Error', 'Could not remove the profile picture.');
+      console.error('Error removing profile picture:', error);
+      Alert.alert('Error', 'Could not remove the profile picture.');
     }
-};
-
-    // New function to delete the image from Firebase Storage
-  const deleteProfilePictureFromStorage = async (filePath) => {
-    const storage = getStorage();
-  const fileRef = ref(storage, filePath);
-
-  try {
-    // Check if file exists
-    await getMetadata(fileRef);
-    // If metadata is returned, file exists, proceed to delete
-    await deleteObject(fileRef);
-    console.log("Profile picture deleted successfully.");
-  } catch (error) {
-    if (error.code === 'storage/object-not-found') {
-      console.warn("Profile picture does not exist, skipping deletion.");
-    } else {
-      console.error("Error deleting profile picture from storage:", error);
-    }
-  }
   };
-
+  
   const handleEditDetails = async () => {
     const user = auth.currentUser;
     if (user) {
@@ -213,58 +193,103 @@ const ProfilePage = ({navigation}) => {
 
   const handleDeleteAccount = async () => {
     const user = auth.currentUser;
-    if (user) {
-        // Show confirmation alert before deleting the account
-        Alert.alert(
-            'Confirm Deletion',
-            'Are you sure you want to delete your account? This action cannot be undone.',
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            // Check if a profile picture exists before trying to delete it
-                            if (photo && photo !== PlaceholderProfile) {
-                                await deleteProfilePictureFromStorage(user.uid); // Delete the profile picture from storage
-                            }
-                            
-                            // Delete user orders from Firestore
-                            const ordersRef = collection(db, 'Orders', user.uid, 'cart');
-                            const ordersSnapshot = await getDocs(ordersRef);
-                            
-                            // Delete each order
-                            const deletePromises = ordersSnapshot.docs.map((orderDoc) => deleteDoc(doc(ordersRef, orderDoc.id)));
-                            await Promise.all(deletePromises);
-                            
-                            // Delete user details from Firestore
-                            await deleteDoc(doc(db, 'UserDetails', user.uid));
-                            
-                            // Delete the user account
-                            await user.delete();
-                            
-                            Alert.alert('Success', 'Your account has been deleted.');
-                            navigation.navigate('Login');
-                        } catch (error) {
-                            Alert.alert('Error', 'Could not delete your account.');
-                            console.error('Error deleting account:', error);
-                        }
-                    },
-                },
-            ]
-        );
-    }
-};
   
-
+    if (!user) {
+      Alert.alert('Error', 'User not authenticated.');
+      return;
+    }
+  
+    // Confirmation dialog
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete your account? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Start by checking if all services can be accessed
+              const storagePath = `profilePictures/${user.uid}.jpg`;
+  
+              // Step 1: Check Storage (if photo exists and is not the placeholder)
+              if (photo && photo !== PlaceholderProfile) {
+                const storage = getStorage();
+                const fileRef = ref(storage, storagePath);
+                try {
+                  await getMetadata(fileRef); // Check if the file exists
+                } catch (error) {
+                  if (error.code === 'storage/object-not-found') {
+                    console.warn('Profile picture does not exist in storage.');
+                  } else {
+                    throw new Error('Storage access failed.');
+                  }
+                }
+              }
+  
+              // Step 2: Check Firestore access
+              const userDoc = await getDoc(doc(db, 'UserDetails', user.uid));
+              if (!userDoc.exists()) throw new Error('Firestore access failed.');
+  
+              // Step 3: Proceed to delete all data atomically
+              // Delete the profile picture if it exists
+              const deleteStoragePromise =
+                photo && photo !== PlaceholderProfile
+                  ? deleteProfilePictureFromStorage(storagePath)
+                  : Promise.resolve();
+  
+              // Delete user orders from Firestore
+              const ordersRef = collection(db, 'Orders', user.uid, 'cart');
+              const ordersSnapshot = await getDocs(ordersRef);
+              const deleteOrdersPromise = Promise.all(
+                ordersSnapshot.docs.map((orderDoc) => deleteDoc(doc(ordersRef, orderDoc.id)))
+              );
+  
+              // Delete user details from Firestore
+              const deleteUserDetailsPromise = deleteDoc(doc(db, 'UserDetails', user.uid));
+  
+              // Execute all deletions
+              await Promise.all([deleteStoragePromise, deleteOrdersPromise, deleteUserDetailsPromise]);
+  
+              // Step 4: Delete the user from Firebase Authentication
+              await user.delete();
+  
+              // Notify success
+              Alert.alert('Success', 'Your account has been deleted.');
+              navigation.navigate('Login');
+            } catch (error) {
+              console.error('Error deleting account:', error);
+              if (error.code === 'auth/requires-recent-login') {
+                Alert.alert('Error', 'You need to re-login before deleting your account. Please log in and try again.');
+              } else {
+                Alert.alert('Error', 'Failed to delete your account. Please try again.');
+              }
+            }
+          },
+        },
+      ]
+    );
+  };
+  
+  // Utility function for deleting the profile picture from Firebase Storage
+  const deleteProfilePictureFromStorage = async (filePath) => {
+    const storage = getStorage();
+    const fileRef = ref(storage, filePath);
+  
+    try {
+      await deleteObject(fileRef);
+      console.log('Profile picture deleted successfully from storage.');
+    } catch (error) {
+      console.error('Error deleting profile picture:', error);
+      throw new Error('Failed to delete profile picture from storage.');
+    }
+  };
+  
   const handleLogout = async () => {
     try {
       await auth.signOut(); // Sign the user out
-      navigation.navigate('Login'); // Navigate to the login screen
+      navigation.replace('MainHome', { screen: 'Login' }); // Navigate to the login screen
       Alert.alert('Success', 'You have logged out successfully.'); // Optional success alert
     } catch (error) {
       console.error('Error logging out:', error);
@@ -278,9 +303,7 @@ const ProfilePage = ({navigation}) => {
       <View style={styles.profileSection}>
         <View style={styles.profileDetailsContainer}>
           <TouchableOpacity onPress={handlePhotoSelection} style={styles.photoContainer}>
-          <Image source={typeof photo === 'string' ? { uri: photo } : PlaceholderProfile}  style={styles.photo} 
-/>
-
+          <Image source={photo && typeof photo === 'string' ? { uri: photo } : PlaceholderProfile} style={styles.photo}/>
           </TouchableOpacity>
 
           <View style={styles.nameAndEmailContainer}>
