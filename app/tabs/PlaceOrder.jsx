@@ -51,7 +51,7 @@ export default function PlaceOrderPage({ route, navigation }) {
       return;
     }
   
-    if (quantity <= 0 || quantity >= 50) {
+    if (quantity <= 0 || quantity > 50) {
       Alert.alert("Error", "Quantity must be between 1 and 50.");
       return;
     }
