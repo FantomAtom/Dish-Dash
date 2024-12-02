@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { db } from '../../configs/FirebaseConfig';
 import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { Defines } from './../../constants/Defines'; // Adjust the import path as needed
-
 
 export default function CartPage({ navigation }) {
   const [orders, setOrders] = useState([]);
@@ -17,9 +16,8 @@ export default function CartPage({ navigation }) {
       return;
     }
 
-    // Subscribe to the user's orders subcollection
     const ordersRef = collection(db, 'Orders', user.uid, 'cart');
-    
+
     const unsubscribe = onSnapshot(ordersRef, (snapshot) => {
       const ordersData = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -31,24 +29,10 @@ export default function CartPage({ navigation }) {
     return () => unsubscribe();
   }, [user]);
 
-  const getOrderStatusStyle = (status) => {
-    switch (status) {
-      case 'Arriving Soon':
-        return styles.arrivingSoon; // Define the style in styles
-      case 'Delivered':
-        return styles.delivered; // Define the style in styles
-      case 'Cancelled':
-        return styles.cancelled; // Define the style in styles
-      default:
-        return styles.defaultStatus; // Optional default style
-    }
-  };
-
   const cancelOrder = async (orderId) => {
-    const orderRef = doc(db, 'Orders', user.uid, 'cart', orderId); // Reference to the specific order
-
+    const orderRef = doc(db, 'Orders', user.uid, 'cart', orderId);
     try {
-      await deleteDoc(orderRef); // Delete the order document
+      await deleteDoc(orderRef);
       Alert.alert("Success", "Order has been cancelled successfully.");
     } catch (error) {
       console.error("Error cancelling order: ", error);
@@ -57,20 +41,20 @@ export default function CartPage({ navigation }) {
   };
 
   const renderOrder = ({ item }) => (
-    <View style={styles.orderCard}>
-      <View style={styles.orderDetails}>
-        <Text style={styles.orderTitle}>{item.itemName}</Text>
-        <Text style={{ fontFamily: Defines.Fonts.Regular }}>Quantity: {item.quantity}</Text>
-        <Text style={{ fontFamily: Defines.Fonts.Regular }}>Total Price: ₹{item.totalPrice}</Text>
-        <Text style={{ fontFamily: Defines.Fonts.Regular }}>Customer Name: {item.customerName}</Text>
-        <Text style={{ fontFamily: Defines.Fonts.Regular }}>Address: {item.address}</Text>
-        <Text style={{ fontFamily: Defines.Fonts.Regular }}>Phone: {item.phone}</Text>
+    <View style={styles.foodItemContainer}>
+      {/* Food Image */}
+      <Image source={{ uri: item.imageRef }} style={styles.foodImageLeft} />
+
+      {/* Food Details */}
+      <View style={styles.foodDetails}>
+        <Text style={styles.foodName}>{item.itemName}</Text>
+        <Text style={styles.foodQuantity}>Quantity: {item.quantity}</Text>
+        <Text style={styles.foodPrice}>{'₹' + item.totalPrice}</Text>
       </View>
-      <View style={[styles.orderStatusContainer, getOrderStatusStyle(item.orderProgress)]}>
-        <Text style={styles.orderStatus}>{item.orderProgress}</Text>
-      </View>
+
+      {/* Cancel Button */}
       <TouchableOpacity
-        onPress={() => cancelOrder(item.id)} // Call the cancelOrder function on press
+        onPress={() => cancelOrder(item.id)}
         style={styles.cancelButton}
       >
         <Text style={styles.cancelButtonText}>X</Text>
@@ -85,7 +69,7 @@ export default function CartPage({ navigation }) {
           <Text style={styles.emptyCartText}>Your cart is empty</Text>
           <TouchableOpacity
             style={styles.startOrderingButton}
-            onPress={() => navigation.navigate('Menu')} // Adjust navigation as necessary
+            onPress={() => navigation.navigate('Home')}
           >
             <Text style={styles.buttonText}>Start Ordering</Text>
           </TouchableOpacity>
@@ -108,36 +92,60 @@ const styles = StyleSheet.create({
     backgroundColor: Defines.Colors.PrimaryWhite,
   },
   flatList: {
-    backgroundColor: Defines.Colors.PrimaryWhite,
     padding: 20,
   },
-  orderCard: {
+  foodItemContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: Defines.Colors.TextColorWhite,
+    backgroundColor: Defines.Colors.White,
     borderRadius: 10,
-    marginBottom: 10,
+    padding: 15,
+    marginBottom: 20,
+    elevation: 3,
   },
-  orderDetails: {
-    flex: 1, // Allows the order details to take up available space
+  foodImageLeft: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginRight: 15,
   },
-  orderTitle: {
-    fontSize: 20,
+  foodDetails: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+  },
+  foodName: {
+    fontSize: 18,
     fontFamily: Defines.Fonts.Bold,
     color: Defines.Colors.TextColorBlack,
+    marginBottom: 5,
   },
-  orderStatusContainer: {
-    padding: 5,
-    borderRadius: 5,
+  foodQuantity: {
+    fontSize: 14,
+    color: Defines.Colors.TextColorBlack,
+    marginBottom: 10,
+    fontFamily: Defines.Fonts.Regular,
+  },
+  foodPrice: {
+    fontSize: 16,
+    fontFamily: Defines.Fonts.Regular,
+    color: Defines.Colors.TextColorGreen,
+  },
+  cancelButton: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: Defines.Colors.Cancelled,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth:2,
   },
-  orderStatus: {
+  cancelButtonText: {
     fontSize: 16,
-    fontFamily: Defines.Fonts.Bold,
-    color: Defines.Colors.TextColorBlack,
+    fontFamily: 'bold',
+    color: Defines.Colors.TextColorWhite,
   },
   emptyCartContainer: {
     flex: 1,
@@ -146,9 +154,9 @@ const styles = StyleSheet.create({
   },
   emptyCartText: {
     fontSize: 18,
-    marginBottom: 20,
     color: Defines.Colors.TextColorBlack,
     fontFamily: Defines.Fonts.Regular,
+    marginBottom: 20,
   },
   startOrderingButton: {
     backgroundColor: Defines.Colors.ButtonColor,
@@ -161,38 +169,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: Defines.Fonts.Bold,
     color: Defines.Colors.TextColorWhite,
-  },
-  arrivingSoon: {
-    borderColor: Defines.Colors.ButtonColor,
-    borderWidth: 2,
-    backgroundColor: Defines.Colors.ArrivingSoon, 
-  },
-  delivered: {
-    borderColor: Defines.Colors.ButtonColor,
-    borderWidth: 2,
-    backgroundColor: Defines.Colors.Delivered,
-  },
-  cancelled: {
-    borderColor: Defines.Colors.ButtonColor,
-    borderWidth: 2,
-    backgroundColor: Defines.Colors.Cancelled
-  },
-  cancelButton: {
-    position: 'absolute', // Absolute positioning for the cancel button
-    bottom: 10,
-    right: 10,
-    width: 30,
-    height: 30,
-    borderRadius: 15, // To make it circular
-    borderWidth:2,
-    borderColor:Defines.Colors.ButtonColor,
-    backgroundColor: Defines.Colors.Cancelled, // Background color for the cancel button
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelButtonText: {
-    color: Defines.Colors.TextColorBlack,
-    fontWeight: Defines.Fonts.Bold,
-    fontSize: 16, // Adjust font size as necessary
   },
 });

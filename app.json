@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Order Food!",
+    "name": "Dish Dash!",
     "slug": "FoodOrderingApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/graphics/icon.png",
         "backgroundColor": "#ffffff"
       }
     },

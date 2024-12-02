@@ -20,37 +20,55 @@ const SignUpPage = ({ navigation }) => {
       ToastAndroid.show('Please fill in all fields.', ToastAndroid.SHORT);
       return;
     }
-
+  
     // Check if passwords match
     if (password !== rePassword) {
       ToastAndroid.show('Passwords do not match.', ToastAndroid.SHORT);
       return;
     }
-
+  
     // Validate phone number format (example: only digits, and length between 10-15)
     const phoneRegex = /^[0-9]{10,15}$/;
     if (!phoneRegex.test(phoneNumber)) {
       ToastAndroid.show('Please enter a valid phone number.', ToastAndroid.SHORT);
       return;
     }
-
+  
     try {
+      // Create a new user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
+      // Ensure user object is properly initialized
+      if (!user || !user.uid) {
+        throw new Error('User ID is unavailable.');
+      }
+  
+      // Add user details to Firestore
       await setDoc(doc(db, 'UserDetails', user.uid), {
         name: name,
         email: email,
         phoneNumber: phoneNumber,
         address: address,
       });
-      console.log('Signed up:', user);
+
+      console.log('Creating user with email:', email);
+      console.log('User created:', user.uid);
+      console.log('Writing to Firestore for user:', user.uid);
+
+      await setDoc(doc(db, 'TestCollection', 'testDoc'), {
+        testField: 'testValue',
+      });
+      console.log('Test write to Firestore succeeded');
+      
+      // Redirect to the main home page
       navigation.replace('MainHome');
     } catch (err) {
-      setError(err.message);
-      console.log(err.message);
+      console.error('Sign-up error:', err.message);
+      ToastAndroid.show(err.message, ToastAndroid.LONG);
     }
   };
+  
 
   return (
     <ImageBackground

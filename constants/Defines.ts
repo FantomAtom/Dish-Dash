@@ -10,6 +10,7 @@ export const Colors = {
   TextColorWhite: '#fff',
   PlaceHolderTextColor: '#A9A9A9',
   TextColorBlack: '#000',
+  TextColorGreen:'#1db83a',
 
   //ELEMENTS
   ButtonColor: '#2feb51',

@@ -45,20 +45,20 @@ export default function PlaceOrderPage({ route, navigation }) {
   const handlePlaceOrder = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
-
+  
     if (!user) {
       Alert.alert("Error", "Please log in to place an order.");
       return;
     }
-
+  
     if (quantity <= 0 || quantity >= 50) {
       Alert.alert("Error", "Quantity must be between 1 and 50.");
       return;
     }
-
+  
     if (isSubmitting) return;
     setIsSubmitting(true);
-
+  
     try {
       const orderData = {
         itemName: item.name,
@@ -73,8 +73,9 @@ export default function PlaceOrderPage({ route, navigation }) {
         orderType,
         orderProgress: "Arriving Soon",
         timestamp: new Date(),
+         imageRef: item.imageRef || '', // Use imageRef or fallback to an empty string
       };
-
+  
       const orderRef = collection(db, 'Orders', user.uid, 'cart');
       await setDoc(doc(orderRef), orderData);
       Alert.alert('Success', 'Order placed successfully!');
@@ -85,7 +86,7 @@ export default function PlaceOrderPage({ route, navigation }) {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  };  
 
   return (
     
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
   foodPrice: {
     fontSize: 20,
     fontFamily: Defines.Fonts.Bold,
-    color: Defines.Colors.ButtonColor,
+    color: Defines.Colors.TextColorGreen,
   },
   foodDescription: {
     fontSize: 16,

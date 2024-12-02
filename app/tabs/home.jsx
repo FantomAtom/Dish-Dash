@@ -15,8 +15,11 @@ import PlaceholderProfile from './../../assets/graphics/placeholder-profile.jpg'
 const HomePage = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null); // Reference for scrolling
+
+  const [category, setCategory] = useState([]);
+  
   const categoryPositions = useRef({}); // To store the position of each category
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]); // Store categories with icons
 
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,26 +30,37 @@ const HomePage = () => {
   const [address, setAddress] = useState('');
   
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(db, 'UserDetails', auth.currentUser.uid),
-      (userDoc) => {
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setUserDetails(data);
-          setName(data.name);
-          setAddress(data.address || 'Address not available');
-          setPhoto(data.profilePicture || PlaceholderProfile);
-        } else {
-          console.error('User document does not exist');
-        }
-      },
-      (error) => {
-        console.error('Error fetching user details:', error);
-      }
-    );
+    if (auth.currentUser) {
+      const unsubscribe = onSnapshot(
+        doc(db, 'UserDetails', auth.currentUser.uid),
+        (userDoc) => {
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setUserDetails(data);
+            setName(data.name);
+            setAddress(data.address || 'Address not available');
   
-    return () => unsubscribe(); // Cleanup listener on unmount
+            // Correctly handle profile picture
+            if (data.profilePicture) {
+              setPhoto({ uri: data.profilePicture }); // Remote URI
+            } else {
+              setPhoto(PlaceholderProfile); // Local image
+            }
+          } else {
+            console.error('User document does not exist');
+          }
+        },
+        (error) => {
+          console.error('Error fetching user details:', error);
+        }
+      );
+  
+      return () => unsubscribe();
+    } else {
+      console.error('User not authenticated.');
+    }
   }, []);
+  
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'FoodItems'), (snapshot) => {
@@ -81,6 +95,18 @@ const HomePage = () => {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'Categories'), (snapshot) => {
+      const categoryData = snapshot.docs.map((doc) => ({
+        id: doc.id, // Document ID, e.g., 'Biriyani', 'Burger'
+        icon: doc.data().iconRef, // Use the 'iconRef' field from Firestore
+      }));
+      setCategory(categoryData); // Save the category data to state
+    });
+  
+    return () => unsubscribe(); // Cleanup on unmount
   }, []);
 
   useEffect(() => {
@@ -130,7 +156,8 @@ const HomePage = () => {
 
           {/* PROFILE PICTURE */}
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Image source={{ uri: photo }} style={styles.profileImage} />
+          <Image source={photo} // `photo` will be either a local image or a URI object
+            style={styles.profileImage}/>
           </TouchableOpacity>
         </View>
 
@@ -183,24 +210,27 @@ const HomePage = () => {
 
   {/* Categories Section */}
   <View style={styles.categoriesSection}>
-    <Text style={styles.sectionTitle}>What would you like to eat now?</Text>
-    <FlatList
-      data={categories}
-      renderItem={({ item }) => (
-        <TouchableOpacity 
-          style={styles.categoryButton} 
-          onPress={() => scrollToCategory(item.category)}
-        >
-          <View style={styles.categoryBox}></View>
-          <Text style={styles.categoryText}>{item.category}</Text>
-        </TouchableOpacity>
-      )}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      keyExtractor={(item) => item.category}
-      style={styles.categoriesList}
-    />
-  </View>
+  <Text style={styles.sectionTitle}>What would you like to eat now?</Text>
+  <FlatList
+    data={category}
+    renderItem={({ item }) => (
+      <TouchableOpacity 
+      style={styles.categoryButton} 
+      onPress={() => scrollToCategory(item.id)} // Pass document ID as the category
+      >
+        <View style={styles.categoryBox}>
+        <Image source={{ uri: item.icon }} style={styles.categoryIcon} />
+        </View>
+
+        <Text style={styles.categoryText}>{item.id}</Text> {/* Display document ID */}
+      </TouchableOpacity>
+    )}
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    keyExtractor={(item) => item.id} // Use document ID as the key
+    style={styles.categoriesList}
+  />
+</View>
 
   {/* Category Items */}
   {categories.map((category) => (
@@ -219,7 +249,12 @@ const HomePage = () => {
             <Text style={styles.foodPrice}>{'₹' + item.price}</Text>
             <TouchableOpacity 
               style={styles.orderButton} 
-              onPress={() => navigation.navigate('PlaceOrder', { item })}
+              onPress={() => navigation.navigate('PlaceOrder', { 
+                item: { 
+                  ...item, 
+                  imageRef: item.image 
+                } 
+              })}
             >
               <Text style={styles.orderButtonText}>Order</Text>
             </TouchableOpacity>
@@ -270,7 +305,7 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 20,
     color: Defines.Colors.TextColorWhite,
-    fontFamily: Defines.Fonts.Regular,
+    fontFamily: Defines.Fonts.Bold,
     textAlign: 'left',
   },
   searchBar: {
@@ -335,10 +370,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
   },
+  categoryIcon: {
+    width: 50, // Adjust as needed
+    height: 50, // Adjust as needed
+    resizeMode: 'contain', // Ensures the image fits within the container
+  },  
   categoryBox: {
     backgroundColor: Defines.Colors.White,
     borderRadius: 20,
-    padding: 40,
+    padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
@@ -397,8 +437,8 @@ const styles = StyleSheet.create({
   
   foodPrice: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: Defines.Fonts.Regular,
+    color: Defines.Colors.TextColorGreen
   },
   
   orderButton: {
