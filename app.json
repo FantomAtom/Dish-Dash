@@ -9,13 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "dishdash"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/graphics/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.fantom_atom.FoodOrderingApp"
     },
     "web": {
       "bundler": "metro",
@@ -27,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/graphics/BACKGROUND.jpg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -36,6 +38,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "8b444e46-a20f-4701-92fa-082016372696"
+      }
     }
   }
 }
