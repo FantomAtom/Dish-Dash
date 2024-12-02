@@ -15,6 +15,9 @@ import PlaceholderProfile from './../../assets/graphics/placeholder-profile.jpg'
 const HomePage = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null); // Reference for scrolling
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredItems, setFilteredItems] = useState([]);
 
   const [category, setCategory] = useState([]);
   
@@ -28,7 +31,7 @@ const HomePage = () => {
   const [name, setName] = useState('');
   const [photo, setPhoto] = useState(null);
   const [address, setAddress] = useState('');
-  
+
   useEffect(() => {
     if (auth.currentUser) {
       const unsubscribe = onSnapshot(
@@ -136,6 +139,31 @@ const HomePage = () => {
     categoryPositions.current[category] = y;
   };
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  
+    // Scroll to the top when the user starts typing
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: 0,
+        animated: true,
+      });
+    }
+  
+    if (query.trim() === '') {
+      setFilteredItems([]);
+      return;
+    }
+  
+    const results = categories
+      .flatMap((category) => category.items)
+      .filter((item) =>
+        item.name.toLowerCase().includes(query.toLowerCase())
+      );
+  
+    setFilteredItems(results);
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -166,8 +194,8 @@ const HomePage = () => {
           <Text style={styles.nameText}>{name}</Text>
         </View>
 
-        {/* SEARCH BAR */}
-        <View style={styles.searchBar}>
+         {/* SEARCH BAR */}
+         <View style={styles.searchBar}>
           <AntDesign
             name="search1"
             size={24}
@@ -175,17 +203,42 @@ const HomePage = () => {
             style={styles.searchIcon}
           />
           <TextInput
-            placeholder="Search"
+            placeholder="Search for Food Items"
             style={styles.searchInput}
             placeholderTextColor="gray"
+            value={searchQuery}
+            onChangeText={handleSearch}
           />
         </View>
       </View>
-    <ScrollView 
-  ref={scrollViewRef} 
-  contentContainerStyle={styles.scrollContent} 
-  showsVerticalScrollIndicator={false}
->
+
+      <ScrollView showsVerticalScrollIndicator = {false} ref = {scrollViewRef} contentContainerStyle = {styles.scrollContent}>
+        {/* Display search results */}
+        {searchQuery.length > 0 && (
+          <View style={styles.searchResultsContainer}>
+            {filteredItems.length === 0 ? (
+              <Text style={styles.noResultsText}>No results found</Text>
+            ) : (
+              filteredItems.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.searchResultItem}
+                  onPress={() => {
+                    scrollToCategory(item.category, item.id); // Scroll to the specific food item
+                    setSearchQuery(''); // Reset the search query
+                    setFilteredItems([]); // Clear the filtered items
+                  }}
+                >
+          <Image source={{ uri: item.image }} style={styles.resultImage} />
+          <View style={styles.resultTextContainer}>
+            <Text style={styles.resultName}>{item.name}</Text>
+            <Text style={styles.resultCategory}>{item.category}</Text>
+          </View>
+        </TouchableOpacity>
+      ))
+    )}
+        </View>
+  )}
   {/* Swiper Component */}
   <View style={styles.swiperContainer}>
     <Swiper
@@ -322,7 +375,58 @@ const styles = StyleSheet.create({
     color: Defines.Colors.Black,
     fontSize: 16,
   },
-
+  searchResultsContainer: {
+    backgroundColor: Defines.Colors.White,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 20,
+    elevation: 5, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+    elevation: 2,
+  },
+  
+  resultImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  
+  resultTextContainer: {
+    flex: 1,
+  },
+  
+  resultName: {
+    fontSize: 16,
+    fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.TextColorBlack,
+  },
+  
+  resultCategory: {
+    fontSize: 14,
+    fontFamily: Defines.Fonts.Regular,
+    color: '#777',
+  },
+  
+  noResultsText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#999',
+    fontFamily: Defines.Fonts.Italic,
+  },
+  
   /*BELOW CONTENT*/
   container: {
     flex: 1,
