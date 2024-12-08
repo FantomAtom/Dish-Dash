@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, ImageBackground} from 'react-native';
 import { Defines } from './../../../constants/Defines';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './../../../configs/FirebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from './../../../configs/FirebaseConfig';
 import Feather from '@expo/vector-icons/Feather';
+
+import AccentImage from '../../../assets/graphics/accent.png';
 
 const SignUpPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -75,10 +77,11 @@ const SignUpPage = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground
-      source={require('./../../../assets/graphics/BACKGROUND.jpg')}
-      style={styles.background}
-    >
+    <View style={styles.background}>
+      <ImageBackground source={AccentImage} style={styles.accentImage}>
+
+      <View style={styles.rectangleAccent}></View>
+
       <View style={styles.container}>
         <Text style={styles.title}>Sign Up</Text>
           
@@ -88,21 +91,21 @@ const SignUpPage = ({ navigation }) => {
           placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={name}
           onChangeText={setName}
-        />
+          />
         <TextInput
           style={styles.input}
           placeholder="Email"
           placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={email}
           onChangeText={setEmail}
-        />
+          />
         <TextInput
           style={styles.input}
           placeholder="Address"
           placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
           value={address}
           onChangeText={setAddress}
-        />
+          />
         <TextInput
           style={styles.input}
           placeholder="Phone Number"
@@ -113,7 +116,7 @@ const SignUpPage = ({ navigation }) => {
             setPhoneNumber(formattedText);
           }}
           keyboardType="phone-pad"
-        />
+          />
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
@@ -122,16 +125,16 @@ const SignUpPage = ({ navigation }) => {
             secureTextEntry={!passwordVisible}
             value={password}
             onChangeText={setPassword}
-          />
+            />
           <TouchableOpacity
             style={styles.eyeIcon}
             onPress={() => setPasswordVisible(!passwordVisible)}
-          >
+            >
             <Feather
               name={passwordVisible ? 'eye' : 'eye-off'}
               size={24}
               color="black"
-            />
+              />
           </TouchableOpacity>
         </View>
         <View style={styles.passwordContainer}>
@@ -142,16 +145,16 @@ const SignUpPage = ({ navigation }) => {
             secureTextEntry={!rePasswordVisible}
             value={rePassword}
             onChangeText={setRePassword}
-          />
+            />
           <TouchableOpacity
             style={styles.eyeIcon}
             onPress={() => setRePasswordVisible(!rePasswordVisible)}
-          >
+            >
             <Feather
               name={rePasswordVisible ? 'eye' : 'eye-off'}
               size={24}
               color="black"
-            />
+              />
           </TouchableOpacity>
         </View>
 
@@ -168,17 +171,21 @@ const SignUpPage = ({ navigation }) => {
           </Text>
         </Text>
       </View>
-    </ImageBackground>
+              </ImageBackground>
+      </View>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    backgroundColor: Defines.Colors.Black,
+  },
+  accentImage: {
+    flex: 1,
     resizeMode: 'cover',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Defines.Colors.Black,
   },
   container: {
     width: '85%',
@@ -187,6 +194,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     elevation: 10,
+  },
+  rectangleAccent: {
+    position: 'absolute',
+    top: 10,
+    right: -130,
+    width: 250,
+    height: 150,
+    borderWidth: 15,
+    borderRadius: 60,
+    borderColor: Defines.Colors.White,
+    opacity: 0.2,
   },
   title: {
     fontSize: 28,

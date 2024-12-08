@@ -315,9 +315,6 @@ const ProfilePage = ({navigation}) => {
       </View>
 
       <View style={styles.actionsSection}>
-        <TouchableOpacity style={styles.actionButton} onPress={handleDeleteAccount}>
-          <Text style={styles.actionText}>Delete Account</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.actionText}>Edit Details</Text>
@@ -332,43 +329,67 @@ const ProfilePage = ({navigation}) => {
         <Text style={styles.actionText}>Log Out</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={[ 
+          styles.actionButton, { backgroundColor: Defines.Colors.Red }]} 
+          onPress={handleDeleteAccount}>
+            <Text style={styles.actionText}>Delete Account</Text>
+        </TouchableOpacity>
       </View>
 
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>Edit Details</Text>
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalView}>
+      <Text style={styles.modalTitle}>Edit Details</Text>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Name"
-              value={name}
-              onChangeText={setName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Address"
-              value={address}
-              onChangeText={setAddress}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              keyboardType="phone-pad"
-            />
+      <TextInput
+        style={styles.input}
+        placeholder="Name"
+        value={name}
+        onChangeText={setName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Address"
+        value={address}
+        onChangeText={setAddress}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        value={phoneNumber}
+        onChangeText={setPhoneNumber}
+        keyboardType="phone-pad"
+      />
 
-            <Button title="Update" onPress={handleEditDetails} />
-            <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
-          </View>
-        </View>
-      </Modal>
+<View style={styles.modalButtonsContainer}>
+  <TouchableOpacity
+    style={[
+      styles.modalActionButton,
+      { backgroundColor: Defines.Colors.ButtonColor }
+    ]}
+    onPress={handleEditDetails}
+  >
+    <Text style={styles.modalActionText}>Update</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[
+      styles.modalActionButton,
+      { backgroundColor: Defines.Colors.Red }
+    ]}
+    onPress={() => setModalVisible(false)}
+  >
+    <Text style={styles.modalActionText}>Cancel</Text>
+  </TouchableOpacity>
+</View>
+
+    </View>
+  </View>
+</Modal>
     </View>
   );
 };
@@ -378,6 +399,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Defines.Colors.PrimaryWhite,
     padding: 20,
+    marginTop:14,
   },
   profileSection: {
     backgroundColor: Defines.Colors.TextColorWhite,
@@ -422,8 +444,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   actionsSection: {
-    marginTop: 20,
+    marginTop: 10,
     alignItems: 'center',
+    marginBottom: 20,
   },
   actionButton: {
     backgroundColor: Defines.Colors.ButtonColor,
@@ -460,11 +483,30 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: Defines.Colors.ButtonColor,
+    borderColor: Defines.Colors.Black,
+    borderRadius:10,
     borderWidth: 1,
     marginBottom: 15,
     paddingHorizontal: 10,
     width: '100%',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },  
+  modalActionButton: {
+    padding: 5,
+    borderRadius: 15,
+    width: '120%',
+    alignItems: 'center',
+    marginVertical: 5,
+    paddingHorizontal:20,
+    elevation:5,
+  },
+  modalActionText: {
+    fontSize: 15,
+    fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.TextColorWhite,
   },
 });
 
