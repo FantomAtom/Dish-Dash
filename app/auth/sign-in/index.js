@@ -13,6 +13,8 @@ import { Defines } from './../../../constants/Defines';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './../../../configs/FirebaseConfig';
 
+import AccentImage from '../../../assets/graphics/accent.png';
+
 const SignInPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,98 +26,103 @@ const SignInPage = ({ navigation }) => {
       ToastAndroid.show('Please fill in all fields.', ToastAndroid.SHORT);
       return;
     }
-  
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log('Signed in:', user);
       navigation.replace('MainHome'); // Navigate to the home page after successful sign in
     } catch (error) {
-        switch (error.code) {
-          case 'auth/invalid-email':
-            errorMessage = 'Incorrect email.';
-            break;
-          case 'auth/invalid-credential':
-            errorMessage = 'Incorrect password.';
-            break;
-          case 'auth/network-request-failed':
-            errorMessage = 'Network error. Please try again.';
-            break;
+      let errorMessage;
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Incorrect email.';
+          break;
+        case 'auth/invalid-credential':
+          errorMessage = 'Incorrect password.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please try again.';
+          break;
         default:
           errorMessage = 'An unknown error occurred.';
           break;
-        }
       }
-    setError(errorMessage); // Display the appropriate error message
-};
-  
+      setError(errorMessage); // Display the appropriate error message
+    }
+  };
+
   return (
-    <ImageBackground
-      source={require('./../../../assets/graphics/BACKGROUND.jpg')} // Replace with your image path
-      style={styles.background}
-    >
-      <View style={styles.container}>
-        <Text style={styles.title}>Sign In</Text>
+    <View style={styles.background}>
+      <ImageBackground source={AccentImage} style={styles.accentImage}>
+          <View style={styles.rectangleAccent}></View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-        />
+        <View style={styles.container}>
+          <Text style={styles.title}>Sign In</Text>
 
-        <View style={styles.passwordContainer}>
           <TextInput
-            style={styles.passwordInput}
-            placeholder="Password"
+            style={styles.input}
+            placeholder="Email"
             placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
-            secureTextEntry={!passwordVisible} // Toggle visibility
-            value={password}
-            onChangeText={(text) => setPassword(text)}
+            value={email}
+            onChangeText={(text) => setEmail(text)}
           />
-          <TouchableOpacity
-            style={styles.eyeIcon}
-            onPress={() => setPasswordVisible(!passwordVisible)}
-          >
-            <Feather
-              name={passwordVisible ? 'eye' : 'eye-off'}
-              size={24}
-              color="black"
+
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Password"
+              placeholderTextColor={Defines.Colors.PlaceHolderTextColor}
+              secureTextEntry={!passwordVisible} // Toggle visibility
+              value={password}
+              onChangeText={(text) => setPassword(text)}
             />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setPasswordVisible(!passwordVisible)}
+            >
+              <Feather
+                name={passwordVisible ? 'eye' : 'eye-off'}
+                size={24}
+                color="black"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+            <Text style={styles.buttonText}>Sign In</Text>
           </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity onPress={handleSignIn} style={styles.button}>
-          <Text style={styles.buttonText}>Sign In</Text>
-        </TouchableOpacity>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <Text style={styles.footerText}>
-          Don't have an account?{' '}
-          <Text style={styles.link} onPress={() => navigation.replace('SignUp')}>
-            Sign Up
+          <Text style={styles.footerText}>
+            Don't have an account?{' '}
+            <Text style={styles.link} onPress={() => navigation.replace('SignUp')}>
+              Sign Up
+            </Text>
           </Text>
-        </Text>
 
-        <Text style={styles.terms}>
-          By signing in, you agree to our{' '}
-          <Text style={styles.link}>Terms & Conditions</Text> and{' '}
-          <Text style={styles.link}>Privacy Policy</Text>.
-        </Text>
-      </View>
-    </ImageBackground>
+          <Text style={styles.terms}>
+            By signing in, you agree to our{' '}
+            <Text style={styles.link}>Terms & Conditions</Text> and{' '}
+            <Text style={styles.link}>Privacy Policy</Text>.
+          </Text>
+        </View>
+      </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    backgroundColor: Defines.Colors.Black,
+  },
+  accentImage: {
+    flex: 1,
     resizeMode: 'cover',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Defines.Colors.Black,
   },
   container: {
     width: '85%',
@@ -124,6 +131,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     elevation: 10,
+  },
+  rectangleAccent: {
+    position: 'absolute',
+    top: 10,
+    right: -130,
+    width: 250,
+    height: 150,
+    borderWidth: 15,
+    borderRadius: 60,
+    borderColor: Defines.Colors.White,
+    opacity: 0.2,
   },
   title: {
     fontSize: 28,
