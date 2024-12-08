@@ -47,12 +47,19 @@ export default function PlaceOrderPage({ route, navigation }) {
     const user = auth.currentUser;
   
     if (!user) {
-      Alert.alert("Error", "Please log in to place an order.");
+      Alert.alert('Error', 'Please log in to place an order.');
       return;
     }
   
-    if (quantity <= 0 || quantity > 50) {
-      Alert.alert("Error", "Quantity must be between 1 and 50.");
+    // Validate quantity again
+    if (quantity <= 0 || quantity > 50 || isNaN(quantity)) {
+      Alert.alert('Error', 'Quantity must be a number between 1 and 50.');
+      return;
+    }
+  
+    // Validate totalPrice
+    if (!isFinite(totalPrice) || isNaN(totalPrice)) {
+      Alert.alert('Error', 'Total price calculation error. Please check your input.');
       return;
     }
   
@@ -71,9 +78,9 @@ export default function PlaceOrderPage({ route, navigation }) {
         phone,
         userId: user.uid,
         orderType,
-        orderProgress: "Arriving Soon",
+        orderProgress: 'Arriving Soon',
         timestamp: new Date(),
-         imageRef: item.imageRef || '', // Use imageRef or fallback to an empty string
+        imageRef: item.imageRef || '', // Use imageRef or fallback to an empty string
       };
   
       const orderRef = collection(db, 'Orders', user.uid, 'cart');
@@ -81,8 +88,8 @@ export default function PlaceOrderPage({ route, navigation }) {
       Alert.alert('Success', 'Order placed successfully!');
       navigation.goBack();
     } catch (error) {
-      console.error("Error placing order: ", error);
-      Alert.alert("Error", "There was an issue placing your order.");
+      console.error('Error placing order: ', error);
+      Alert.alert('Error', 'There was an issue placing your order.');
     } finally {
       setIsSubmitting(false);
     }
@@ -119,7 +126,15 @@ export default function PlaceOrderPage({ route, navigation }) {
         style={styles.quantityInput}
         keyboardType="numeric"
         value={String(quantity)}
-        onChangeText={(val) => setQuantity(Number(val))}
+        onChangeText={(val) => {
+          const parsedValue = Number(val);
+          if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 50) {
+            Alert.alert('Invalid Quantity', 'Quantity must be a number between 1 and 50.');
+            setQuantity(1); // Reset to default valid value
+          } else {
+            setQuantity(parsedValue);
+          }
+        }}
       />
 
       <Text style={styles.label}>Order Type:</Text>

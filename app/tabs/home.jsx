@@ -15,6 +15,9 @@ import PlaceholderProfile from './../../assets/graphics/placeholder-profile.jpg'
 const HomePage = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null); // Reference for scrolling
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredItems, setFilteredItems] = useState([]);
 
   const [category, setCategory] = useState([]);
   
@@ -28,7 +31,7 @@ const HomePage = () => {
   const [name, setName] = useState('');
   const [photo, setPhoto] = useState(null);
   const [address, setAddress] = useState('');
-  
+
   useEffect(() => {
     if (auth.currentUser) {
       const unsubscribe = onSnapshot(
@@ -136,6 +139,31 @@ const HomePage = () => {
     categoryPositions.current[category] = y;
   };
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  
+    // Scroll to the top when the user starts typing
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: 0,
+        animated: true,
+      });
+    }
+  
+    if (query.trim() === '') {
+      setFilteredItems([]);
+      return;
+    }
+  
+    const results = categories
+      .flatMap((category) => category.items)
+      .filter((item) =>
+        item.name.toLowerCase().includes(query.toLowerCase())
+      );
+  
+    setFilteredItems(results);
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -166,8 +194,8 @@ const HomePage = () => {
           <Text style={styles.nameText}>{name}</Text>
         </View>
 
-        {/* SEARCH BAR */}
-        <View style={styles.searchBar}>
+         {/* SEARCH BAR */}
+         <View style={styles.searchBar}>
           <AntDesign
             name="search1"
             size={24}
@@ -175,17 +203,42 @@ const HomePage = () => {
             style={styles.searchIcon}
           />
           <TextInput
-            placeholder="Search"
+            placeholder="Search for Food Items"
             style={styles.searchInput}
             placeholderTextColor="gray"
+            value={searchQuery}
+            onChangeText={handleSearch}
           />
         </View>
       </View>
-    <ScrollView 
-  ref={scrollViewRef} 
-  contentContainerStyle={styles.scrollContent} 
-  showsVerticalScrollIndicator={false}
->
+
+      <ScrollView showsVerticalScrollIndicator = {false} ref = {scrollViewRef} contentContainerStyle = {styles.scrollContent}>
+        {/* Display search results */}
+        {searchQuery.length > 0 && (
+          <View style={styles.searchResultsContainer}>
+            {filteredItems.length === 0 ? (
+              <Text style={styles.noResultsText}>No results found</Text>
+            ) : (
+              filteredItems.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.searchResultItem}
+                  onPress={() => {
+                    scrollToCategory(item.category, item.id); // Scroll to the specific food item
+                    setSearchQuery(''); // Reset the search query
+                    setFilteredItems([]); // Clear the filtered items
+                  }}
+                >
+          <Image source={{ uri: item.image }} style={styles.resultImage} />
+          <View style={styles.resultTextContainer}>
+            <Text style={styles.resultName}>{item.name}</Text>
+            <Text style={styles.resultCategory}>{item.category}</Text>
+          </View>
+        </TouchableOpacity>
+      ))
+    )}
+        </View>
+  )}
   {/* Swiper Component */}
   <View style={styles.swiperContainer}>
     <Swiper
@@ -269,10 +322,10 @@ const HomePage = () => {
 const styles = StyleSheet.create({
   detailsContainer: {
     backgroundColor: Defines.Colors.Black,
-    marginBottom: 20,
-    padding: 30,
-    borderBottomRightRadius: 30,
-    borderBottomLeftRadius: 30,
+    marginBottom: 10, // Reduced margin
+    padding: 15, // Reduced padding
+    borderBottomRightRadius: 20, // Slightly reduced
+    borderBottomLeftRadius: 20, // Slightly reduced
   },
   header: {
     flexDirection: 'row',
@@ -280,49 +333,95 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   profileImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 40,
-    borderWidth: 2,
+    width: 50, // Reduced size
+    height: 50, // Reduced size
+    borderRadius: 25, // Adjusted for smaller size
+    borderWidth: 1, // Thinner border
     borderColor: Defines.Colors.PrimaryWhite,
-    marginLeft: 25,
+    marginLeft: 20, // Reduced margin
+    marginRight: 10, // Reduced margin
   },
   locationText: {
-    fontSize: 13,
+    fontSize: 11, // Reduced font size
     color: Defines.Colors.TextColorWhite,
     fontFamily: Defines.Fonts.Light,
     textAlign: 'left',
-    marginLeft: 12, // Spacing between icon and text
+    marginLeft: 8, // Reduced spacing
     flex: 1,
   },
   nameContainer: {
-    marginTop: 10, // Adds spacing between header and name
-    marginLeft: 10, // Aligns the name with the location text
+    marginTop: 5, // Reduced spacing
+    marginLeft: 5, // Reduced spacing
   },
   nameText: {
-    fontSize: 20,
+    fontSize: 17, // Reduced font size
     color: Defines.Colors.TextColorWhite,
     fontFamily: Defines.Fonts.Bold,
     textAlign: 'left',
   },
   searchBar: {
-    marginTop: 20, // Adds spacing between the name and the search bar
+    marginTop: 10, // Reduced spacing
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Defines.Colors.White,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    borderRadius: 8, // Slightly reduced
+    paddingHorizontal: 8, // Reduced padding
+    paddingVertical: 3, // Reduced padding
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: 8, // Reduced spacing
   },
   searchInput: {
     flex: 1,
     color: Defines.Colors.Black,
-    fontSize: 16,
+    fontSize: 14, // Reduced font size
   },
-
+  searchResultsContainer: {
+    backgroundColor: Defines.Colors.White,
+    borderRadius: 8, // Slightly reduced
+    padding: 8, // Reduced padding
+    marginBottom: 15, // Reduced spacing
+    marginTop: -15, // Reduced spacing
+    elevation: 4, // Slightly reduced shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 6, // Slightly reduced
+    padding: 8, // Reduced padding
+    marginBottom: 6, // Reduced spacing
+    elevation: 1, // Reduced shadow
+  },
+  resultImage: {
+    width: 40, // Reduced size
+    height: 40, // Reduced size
+    borderRadius: 20, // Adjusted for smaller size
+    marginRight: 8, // Reduced spacing
+  },
+  resultTextContainer: {
+    flex: 1,
+  },
+  resultName: {
+    fontSize: 14, // Reduced font size
+    fontFamily: Defines.Fonts.Bold,
+    color: Defines.Colors.TextColorBlack,
+  },
+  resultCategory: {
+    fontSize: 12, // Reduced font size
+    fontFamily: Defines.Fonts.Regular,
+    color: '#777',
+  },
+  noResultsText: {
+    textAlign: 'center',
+    fontSize: 14, // Reduced font size
+    color: '#999',
+    fontFamily: Defines.Fonts.Italic,
+  },
   /*BELOW CONTENT*/
   container: {
     flex: 1,
@@ -330,7 +429,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 250,
+    paddingBottom: 190,
     backgroundColor: Defines.Colors.PrimaryWhite,
   },
   swiperContainer: {
