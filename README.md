@@ -1,50 +1,17 @@
-# Welcome to your Expo app 👋
+## 📸 Screenshots  
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/02426ff4-2678-46c6-89f0-09d9e1b98b5e" width="200"/>
+  <img src="https://github.com/user-attachments/assets/c061f8c6-12a1-4308-9b4f-29a27912df71" width="200"/>
+  <img src="https://github.com/user-attachments/assets/6cd082d5-cba9-4d91-b783-27c7986cc2a1" width="200"/>
+  <img src="https://github.com/user-attachments/assets/abcd6c02-06eb-4959-a897-f1923c5efd20" width="200"/>
+  <img src="https://github.com/user-attachments/assets/5a0def48-e7d8-4ded-b47a-bd064f56fd47" width="200"/>
+</p>
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0db18497-1146-4fae-946f-5b9096193e93" width="200"/>
+  <img src="https://github.com/user-attachments/assets/98cd6e19-c93e-4411-9e62-060e1f63b091" width="200"/>
+  <img src="https://github.com/user-attachments/assets/bfb11065-0d9c-4867-8ad3-133e3bab64e2" width="200"/>
+  <img src="https://github.com/user-attachments/assets/95a69783-a49c-4927-a462-18e1840ba1de" width="200"/>
+  <img src="https://github.com/user-attachments/assets/28baaaf4-0660-4c20-8746-03f217386fac" width="200"/>
+</p>
