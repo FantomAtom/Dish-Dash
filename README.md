@@ -1,14 +1,41 @@
+# 🍽️ Dish Dash! – Food Delivery App  
+
+**Dish Dash!** is a learning project built in **React Native** that lets users:  
+- 📖 Browse menus  
+- 🛵 Place orders for delivery or pickup  
+- 👤 Manage their account via **Firebase Authentication**  
+- 📸 Store and retrieve images using **Firebase Storage**  
+- 🔄 Get real-time updates on orders using **Cloud Firestore**  
+
+This app is designed as a **prototype** to showcase:  
+- Seamless **mobile UI patterns**  
+- Integration of **core Firebase services**  
+- A working **food ordering flow** (browse → order → track)  
+
+---
+
+## ⚡ Tech Stack  
+- **React Native**  
+- **JavaScript**  
+- **Firebase Authentication**  
+- **Firebase Firestore**  
+- **Firebase Storage**  
+
+---
+
 ## 📸 Screenshots  
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/02426ff4-2678-46c6-89f0-09d9e1b98b5e" width="200"/>
-  <img src="https://github.com/user-attachments/assets/c061f8c6-12a1-4308-9b4f-29a27912df71" width="200"/>
-  <img src="https://github.com/user-attachments/assets/6cd082d5-cba9-4d91-b783-27c7986cc2a1" width="200"/>
-  <img src="https://github.com/user-attachments/assets/abcd6c02-06eb-4959-a897-f1923c5efd20" width="200"/>
-  <img src="https://github.com/user-attachments/assets/5a0def48-e7d8-4ded-b47a-bd064f56fd47" width="200"/>
-  <img src="https://github.com/user-attachments/assets/0db18497-1146-4fae-946f-5b9096193e93" width="200"/>
-  <img src="https://github.com/user-attachments/assets/98cd6e19-c93e-4411-9e62-060e1f63b091" width="200"/>
-  <img src="https://github.com/user-attachments/assets/bfb11065-0d9c-4867-8ad3-133e3bab64e2" width="200"/>
-  <img src="https://github.com/user-attachments/assets/95a69783-a49c-4927-a462-18e1840ba1de" width="200"/>
-  <img src="https://github.com/user-attachments/assets/28baaaf4-0660-4c20-8746-03f217386fac" width="200"/>
+  <img src="https://github.com/user-attachments/assets/33034869-9eaa-4a2f-b813-ea653c4220be" width="200"/>
+  <img src="https://github.com/user-attachments/assets/883a5524-34bb-4536-b548-57f4660b808a" width="200"/>
+  <img src="https://github.com/user-attachments/assets/f678db9a-c03c-4dd8-b9af-2b75940001fd" width="200"/>
+  <img src="https://github.com/user-attachments/assets/9c05f0ac-1510-4a8d-80f4-d77dc1c37486" width="200"/>
+  <img src="https://github.com/user-attachments/assets/8d563cb9-505d-4d3b-ba1c-18c9fec283ac" width="200"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/3c99bb60-0c3c-4c61-8718-b3a730b9567a" width="200"/>
+  <img src="https://github.com/user-attachments/assets/4ca96138-39a8-4289-b0cc-6ffbce3cc701" width="200"/>
+  <img src="https://github.com/user-attachments/assets/91a60a5c-5bea-466f-9ead-d39c1aad500a" width="200"/>
+  <img src="https://github.com/user-attachments/assets/d31c0372-46be-4f9f-96d1-95e109a5d593" width="200"/>
 </p>
