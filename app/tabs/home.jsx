@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {View,Text,StyleSheet,TouchableOpacity,FlatList,ScrollView,Image,TextInput,ActivityIndicator,} from 'react-native';
-import Swiper from 'react-native-swiper'; // For swiping between offers
 import { useNavigation } from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
+import Swiper from 'react-native-swiper'; // For swiping between offers
 
-import { db,auth } from './../../configs/FirebaseConfig'; // Firebase config
-import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from './../../configs/FirebaseConfig'; // Firebase config
 
 import { Defines } from '../../constants/Defines';
 
-import { AntDesign } from '@expo/vector-icons';
-import { EvilIcons } from '@expo/vector-icons';
+import { AntDesign, EvilIcons } from '@expo/vector-icons';
 import PlaceholderProfile from './../../assets/graphics/placeholder-profile.jpg';
 
 const HomePage = () => {
@@ -483,7 +482,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 15,
-    fontWeight: Defines.Fonts.Regular,
+    fontFamily: Defines.Fonts.Regular,
     color: Defines.Colors.TextColorBlack,
   },
 

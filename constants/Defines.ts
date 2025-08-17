@@ -1,3 +1,4 @@
+//Defines.ts
 export const Colors = {
   //COLORS
   PrimaryWhite: '#ebebeb',
