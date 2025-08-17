@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ToastAndroid,
-  ImageBackground,
-} from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
-import { Defines } from './../../../constants/Defines';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useState } from 'react';
+import {
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { auth } from './../../../configs/FirebaseConfig';
+import { Defines } from './../../../constants/Defines';
 
 import AccentImage from '../../../assets/graphics/accent.png';
 
@@ -31,7 +31,7 @@ const SignInPage = ({ navigation }) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log('Signed in:', user);
-      navigation.replace('MainHome'); // Navigate to the home page after successful sign in
+      navigation.replace('Home'); // Navigate to the home page after successful sign in
     } catch (error) {
       let errorMessage;
       switch (error.code) {

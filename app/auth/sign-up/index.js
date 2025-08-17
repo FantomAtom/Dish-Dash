@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, ImageBackground} from 'react-native';
-import { Defines } from './../../../constants/Defines';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './../../../configs/FirebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from './../../../configs/FirebaseConfig';
 import Feather from '@expo/vector-icons/Feather';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { ImageBackground, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { auth, db } from './../../../configs/FirebaseConfig';
+import { Defines } from './../../../constants/Defines';
 
 import AccentImage from '../../../assets/graphics/accent.png';
 
@@ -52,7 +51,7 @@ const SignUpPage = ({ navigation }) => {
         address: address,
       });
 
-      navigation.replace('MainHome');
+      navigation.replace('Home');
     } catch (error) {
       let errorMessage = 'An unknown error occurred.';
   

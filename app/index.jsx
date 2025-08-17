@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
-import { StatusBar, View, ActivityIndicator } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth'; // Firebase auth listener
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StatusBar, View } from 'react-native';
 import { auth } from '../configs/FirebaseConfig';
 
-import { Defines } from '../constants/Defines';
-import TabNavigator from './Navigators/TabNavigator';
 import LoginPage from '../components/Login';
+import { Defines } from '../constants/Defines';
 import SignInPage from './auth/sign-in';
 import SignUpPage from './auth/sign-up';
+import TabNavigator from './Navigators/TabNavigator';
 import PlaceOrderPage from './tabs/PlaceOrder';
 import ProfilePage from './tabs/profile';
 
@@ -55,7 +55,7 @@ const App = () => {
         {user ? (
           <>
             {/* Main App Screens */}
-            <Stack.Screen name="MainHome" component={TabNavigator} />
+            <Stack.Screen name="MainTabs" component={TabNavigator} />
             <Stack.Screen name="PlaceOrder" component={PlaceOrderPage} />
             <Stack.Screen name="Profile" component={ProfilePage} />
           </>
