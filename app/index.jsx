@@ -1,11 +1,12 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
-import { onAuthStateChanged } from 'firebase/auth'; // Firebase auth listener
+import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StatusBar, View } from 'react-native';
-import { auth } from '../configs/FirebaseConfig';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import LoginPage from '../components/Login';
+import { auth } from '../configs/FirebaseConfig';
 import { Defines } from '../constants/Defines';
 import SignInPage from './auth/sign-in';
 import SignUpPage from './auth/sign-up';
@@ -15,26 +16,52 @@ import ProfilePage from './tabs/profile';
 
 const Stack = createNativeStackNavigator();
 
-const App = () => {
-  const [user, setUser] = useState(null); // Track user authentication state
-  const [loading, setLoading] = useState(true); // Track loading state
+function RootNavigator({ user }) {
+  const insets = useSafeAreaInsets(); // ✅ this gives us status bar height
+
+  return (
+    <>
+      {/* Status bar background */}
+      <View style={{ height: insets.top, backgroundColor: 'black' }} />
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
+      <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_bottom' }}>
+        {user ? (
+          <>
+            <Stack.Screen name="MainTabs" component={TabNavigator} />
+            <Stack.Screen name="PlaceOrder" component={PlaceOrderPage} />
+            <Stack.Screen name="Profile" component={ProfilePage} />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={LoginPage} />
+            <Stack.Screen name="SignIn" component={SignInPage} />
+            <Stack.Screen name="SignUp" component={SignUpPage} />
+          </>
+        )}
+      </Stack.Navigator>
+    </>
+  );
+}
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [fontsLoaded] = useFonts({
     'Poppins-Regular': require('./../assets/fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('./../assets/fonts/Poppins-Bold.ttf'),
     'Poppins-Light': require('./../assets/fonts/Poppins-Light.ttf'),
   });
 
-  // Monitor authentication state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false); // Stop loading once the state is resolved
+      setLoading(false);
     });
-
-    return () => unsubscribe(); // Clean up the listener
+    return unsub;
   }, []);
 
-  // Display a loading indicator until authentication and fonts are loaded
   if (!fontsLoaded || loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -44,32 +71,8 @@ const App = () => {
   }
 
   return (
-    <>
-      <StatusBar barStyle="light-content" backgroundColor={Defines.Colors.Black} />
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_bottom',
-        }}
-      >
-        {user ? (
-          <>
-            {/* Main App Screens */}
-            <Stack.Screen name="MainTabs" component={TabNavigator} />
-            <Stack.Screen name="PlaceOrder" component={PlaceOrderPage} />
-            <Stack.Screen name="Profile" component={ProfilePage} />
-          </>
-        ) : (
-          <>
-            {/* Authentication Screens */}
-            <Stack.Screen name="Login" component={LoginPage} />
-            <Stack.Screen name="SignIn" component={SignInPage} />
-            <Stack.Screen name="SignUp" component={SignUpPage} />
-          </>
-        )}
-      </Stack.Navigator>
-    </>
+    <SafeAreaProvider>
+      <RootNavigator user={user} />
+    </SafeAreaProvider>
   );
-};
-
-export default App;
+}
