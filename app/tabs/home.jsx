@@ -178,7 +178,7 @@ const HomePage = () => {
         <View style={styles.header}>
 
           {/* LOCATION WITH ICON */}
-          <EvilIcons name="location" size={30} color="white" />
+          <EvilIcons name="location" size={32} color="white" style={{ marginBottom: 10 }} />
           <Text style={styles.locationText}>{address}</Text>
 
           {/* PROFILE PICTURE */}
@@ -323,6 +323,7 @@ const styles = StyleSheet.create({
     backgroundColor: Defines.Colors.Black,
     marginBottom: 10, // Reduced margin
     padding: 15, // Reduced padding
+    paddingTop: 35, // Reduced padding
     borderBottomRightRadius: 20, // Slightly reduced
     borderBottomLeftRadius: 20, // Slightly reduced
   },
@@ -353,7 +354,7 @@ const styles = StyleSheet.create({
     marginLeft: 5, // Reduced spacing
   },
   nameText: {
-    fontSize: 17, // Reduced font size
+    fontSize: 18, // Reduced font size
     color: Defines.Colors.TextColorWhite,
     fontFamily: Defines.Fonts.Bold,
     textAlign: 'left',
