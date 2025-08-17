@@ -1,8 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, initializeAuth, getReactNativePersistence } from "firebase/auth"; 
-import { getFirestore } from "firebase/firestore"; 
-import { getStorage } from 'firebase/storage';
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { 
+  getAuth, 
+  initializeAuth, 
+  getReactNativePersistence 
+} from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 
 const firebaseConfig = {
   apiKey: "AIzaSyANX-s8VaJywtCf7q05wSLjBDAvmp2ihu4",
@@ -17,12 +22,17 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Set up Firebase Authentication with AsyncStorage persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage)  // Ensure persistence with AsyncStorage
-});
+// Auth: use different init for native vs web
+let auth;
+if (Platform.OS === "web") {
+  auth = getAuth(app); // web uses default auth
+} else {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+}
 
-const db = getFirestore(app);  // Initialize Firestore
-const imageDb = getStorage(app);  // Initialize Storage
+const db = getFirestore(app);
+const imageDb = getStorage(app);
 
 export { auth, db, imageDb };

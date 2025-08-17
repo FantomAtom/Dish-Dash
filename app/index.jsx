@@ -1,67 +1,39 @@
-import React, { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
-import { StatusBar, View, ActivityIndicator } from 'react-native';
-import { onAuthStateChanged } from 'firebase/auth'; // Firebase auth listener
-import { auth } from '../configs/FirebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StatusBar, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Defines } from '../constants/Defines';
-import TabNavigator from './Navigators/TabNavigator';
 import LoginPage from '../components/Login';
+import { auth } from '../configs/FirebaseConfig';
+import { Defines } from '../constants/Defines';
 import SignInPage from './auth/sign-in';
 import SignUpPage from './auth/sign-up';
+import TabNavigator from './Navigators/TabNavigator';
 import PlaceOrderPage from './tabs/PlaceOrder';
 import ProfilePage from './tabs/profile';
 
 const Stack = createNativeStackNavigator();
 
-const App = () => {
-  const [user, setUser] = useState(null); // Track user authentication state
-  const [loading, setLoading] = useState(true); // Track loading state
-  const [fontsLoaded] = useFonts({
-    'Poppins-Regular': require('./../assets/fonts/Poppins-Regular.ttf'),
-    'Poppins-Bold': require('./../assets/fonts/Poppins-Bold.ttf'),
-    'Poppins-Light': require('./../assets/fonts/Poppins-Light.ttf'),
-  });
-
-  // Monitor authentication state
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false); // Stop loading once the state is resolved
-    });
-
-    return () => unsubscribe(); // Clean up the listener
-  }, []);
-
-  // Display a loading indicator until authentication and fonts are loaded
-  if (!fontsLoaded || loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={Defines.Colors.HighlightColor} />
-      </View>
-    );
-  }
+function RootNavigator({ user }) {
+  const insets = useSafeAreaInsets(); // ✅ this gives us status bar height
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor={Defines.Colors.Black} />
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_bottom',
-        }}
-      >
+      {/* Status bar background (always black) */}
+      <View style={{ height: insets.top, backgroundColor: Defines.Colors.Black }} />
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+
+      <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_bottom' }}>
         {user ? (
           <>
-            {/* Main App Screens */}
-            <Stack.Screen name="MainHome" component={TabNavigator} />
+            <Stack.Screen name="MainTabs" component={TabNavigator} />
             <Stack.Screen name="PlaceOrder" component={PlaceOrderPage} />
             <Stack.Screen name="Profile" component={ProfilePage} />
           </>
         ) : (
           <>
-            {/* Authentication Screens */}
             <Stack.Screen name="Login" component={LoginPage} />
             <Stack.Screen name="SignIn" component={SignInPage} />
             <Stack.Screen name="SignUp" component={SignUpPage} />
@@ -70,6 +42,37 @@ const App = () => {
       </Stack.Navigator>
     </>
   );
-};
+}
 
-export default App;
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [fontsLoaded] = useFonts({
+    'Poppins-Regular': require('./../assets/fonts/Poppins-Regular.ttf'),
+    'Poppins-Bold': require('./../assets/fonts/Poppins-Bold.ttf'),
+    'Poppins-Light': require('./../assets/fonts/Poppins-Light.ttf'),
+  });
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Defines.Colors.Black }}>
+        <ActivityIndicator size="large" color={Defines.Colors.Red} />
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaProvider>
+      <RootNavigator user={user} />
+    </SafeAreaProvider>
+  );
+}

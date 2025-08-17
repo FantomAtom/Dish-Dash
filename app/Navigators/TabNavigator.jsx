@@ -1,12 +1,12 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View } from 'react-native';
 import { Defines } from '../../constants/Defines';
 
 // Screens
-import HomePage from '../tabs/home';
 import CartPage from '../tabs/cart';
+import HomePage from '../tabs/home';
 
 const Tab = createBottomTabNavigator();
 
@@ -38,7 +38,9 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Food',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome6 name="bowl-food" size={size} color={color} />
+            <View style={{ marginTop: 6 }}>
+              <FontAwesome6 name="bowl-food" size={size} color={color} />
+            </View>
           ),
         }}
       />
@@ -48,7 +50,9 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Cart',
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="shoppingcart" size={size} color={color} />
+            <View style={{ marginTop: 6 }}>
+              <AntDesign name="shoppingcart" size={size} color={color} />
+            </View>
           ),
         }}
       />

@@ -1,7 +1,7 @@
+//Defines.ts
 export const Colors = {
   //COLORS
   PrimaryWhite: '#ebebeb',
-  PrimaryBlack: '#ebebeb',
   Black:'#000',
   White:'#FFFFFF',
   Red:'#f54545',
@@ -14,7 +14,7 @@ export const Colors = {
 
   //ELEMENTS
   ButtonColor: '#2feb51',
-  StatusBarColor:"#242424",
+  StatusBarColor:"#000000",
   TabBarInactive:'#5e5e5e',
 
   //DELIVERY STATUS

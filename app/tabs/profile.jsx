@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Modal, TextInput, Button } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { collection, deleteDoc, deleteField, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import { deleteObject, getDownloadURL, getMetadata, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { useEffect, useState } from 'react';
+import { Alert, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Defines } from '../../constants/Defines';
-import { auth, db, imageDb } from './../../configs/FirebaseConfig';
-import { doc, getDoc, getDocs, updateDoc, deleteDoc, deleteField, collection } from 'firebase/firestore';
-import{ ref, uploadBytes, getDownloadURL, deleteObject, getStorage, getMetadata} from 'firebase/storage'
 import PlaceholderProfile from './../../assets/graphics/placeholder-profile.jpg';
-import * as ImagePicker from 'expo-image-picker'
+import { auth, db, imageDb } from './../../configs/FirebaseConfig';
 
 const ProfilePage = ({navigation}) => {
 
@@ -289,7 +289,7 @@ const ProfilePage = ({navigation}) => {
   const handleLogout = async () => {
     try {
       await auth.signOut(); // Sign the user out
-      navigation.replace('MainHome', { screen: 'Login' }); // Navigate to the login screen
+      navigation.replace('Home', { screen: 'Login' }); // Navigate to the login screen
       Alert.alert('Success', 'You have logged out successfully.'); // Optional success alert
     } catch (error) {
       console.error('Error logging out:', error);
@@ -321,7 +321,7 @@ const ProfilePage = ({navigation}) => {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton}
-        onPress={() => { navigation.replace('MainHome', { screen: 'Cart' });}}>
+        onPress={() => { navigation.replace('Home', { screen: 'Cart' });}}>
           <Text style={styles.actionText}>Order History</Text>
         </TouchableOpacity>
 
