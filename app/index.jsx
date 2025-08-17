@@ -21,9 +21,9 @@ function RootNavigator({ user }) {
 
   return (
     <>
-      {/* Status bar background */}
-      <View style={{ height: insets.top, backgroundColor: 'black' }} />
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      {/* Status bar background (always black) */}
+      <View style={{ height: insets.top, backgroundColor: Defines.Colors.Black }} />
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_bottom' }}>
         {user ? (
@@ -64,8 +64,8 @@ export default function App() {
 
   if (!fontsLoaded || loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={Defines.Colors.HighlightColor} />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Defines.Colors.Black }}>
+        <ActivityIndicator size="large" color={Defines.Colors.Red} />
       </View>
     );
   }
