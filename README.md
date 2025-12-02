@@ -42,3 +42,9 @@ This app is designed as a **prototype** to showcase:
   <img src="https://github.com/user-attachments/assets/91a60a5c-5bea-466f-9ead-d39c1aad500a" width="250"/>
   <img src="https://github.com/user-attachments/assets/d31c0372-46be-4f9f-96d1-95e109a5d593" width="250"/>
 </p>
+
+## 🖼️ App Icon
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/80068ad2-89e7-454a-b934-596bf5dccfe9" width="300"/>
+</p>
